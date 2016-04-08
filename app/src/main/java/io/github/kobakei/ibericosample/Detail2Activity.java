@@ -7,6 +7,9 @@ import android.os.Bundle;
 import io.github.kobakei.iberico.annotation.Extra;
 import io.github.kobakei.iberico.annotation.Launcher;
 
+/**
+ * Sample of multiple constructor
+ */
 @Launcher({
         "foo, bar1",
         "foo, bar2"

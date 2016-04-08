@@ -25,4 +25,8 @@ public class MainActivity extends AppCompatActivity {
     void onButton2Clicked(View view) {
         Toast.makeText(this, "button2", Toast.LENGTH_SHORT).show();
     }
+
+    void onButton3Clicked(View view) {
+        Toast.makeText(this, "button3", Toast.LENGTH_SHORT).show();
+    }
 }

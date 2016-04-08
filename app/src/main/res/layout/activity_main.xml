@@ -23,4 +23,11 @@
         android:layout_height="wrap_content"
         android:text="Go to child 2"
         android:onClick="onButton2Clicked"/>
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Go to child 3"
+        android:onClick="onButton3Clicked"/>
 </LinearLayout>

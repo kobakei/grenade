@@ -2,8 +2,11 @@ package io.github.kobakei.iberico;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.Parcelable;
 
 import com.google.auto.service.AutoService;
+import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
@@ -12,8 +15,6 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +32,6 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
@@ -54,6 +54,10 @@ public class IbericoProcessor extends AbstractProcessor {
 
     private static final ClassName INTENT_CLASS = ClassName.get(Intent.class);
     private static final ClassName CONTEXT_CLASS = ClassName.get(Context.class);
+    private static final ClassName STRING_CLASS = ClassName.get(String.class);
+    private static final ClassName PARCELABLE_CLASS = ClassName.get(Parcelable.class);
+    private static final ClassName BUNDLE_CLASS = ClassName.get(Bundle.class);
+    private static final ClassName CHAR_SEQUENCE_CLASS = ClassName.get(CharSequence.class);
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -195,26 +199,10 @@ public class IbericoProcessor extends AbstractProcessor {
                 .addParameter(targetClass, "target")
                 .addParameter(INTENT_CLASS, "intent");
         for (Element e : requiredElements) {
-            String fieldName = e.getSimpleName().toString();
-            TypeName fieldType = TypeName.get(e.asType());
-            if (fieldType.equals(TypeName.INT)) {
-                injectSpecBuilder.addStatement("target.$L = intent.getIntExtra($S, 0)", fieldName, fieldName);
-            } else if (fieldType.equals(TypeName.LONG)) {
-                injectSpecBuilder.addStatement("target.$L = intent.getLongExtra($S, 0L)", fieldName, fieldName);
-            } else {
-                injectSpecBuilder.addStatement("target.$L = intent.getStringExtra($S)", fieldName, fieldName);
-            }
+            addGetExtraStatement(injectSpecBuilder, e);
         }
         for (Element e : optionalElements) {
-            String fieldName = e.getSimpleName().toString();
-            TypeName fieldType = TypeName.get(e.asType());
-            if (fieldType.equals(TypeName.INT)) {
-                injectSpecBuilder.addStatement("target.$L = intent.getIntExtra($S, 0)", fieldName, fieldName);
-            } else if (fieldType.equals(TypeName.LONG)) {
-                injectSpecBuilder.addStatement("target.$L = intent.getLongExtra($S, 0L)", fieldName, fieldName);
-            } else {
-                injectSpecBuilder.addStatement("target.$L = intent.getStringExtra($S)", fieldName, fieldName);
-            }
+            addGetExtraStatement(injectSpecBuilder, e);
         }
         intentBuilderBuilder.addMethod(injectSpecBuilder.build());
 
@@ -222,6 +210,40 @@ public class IbericoProcessor extends AbstractProcessor {
         JavaFile.builder(packageName, intentBuilderBuilder.build())
                 .build()
                 .writeTo(filer);
+    }
+
+    private void addGetExtraStatement(MethodSpec.Builder injectSpecBuilder, Element e) {
+        String fieldName = e.getSimpleName().toString();
+        TypeName fieldType = TypeName.get(e.asType());
+        if (fieldType.equals(TypeName.INT)) {
+            injectSpecBuilder.addStatement("target.$L = intent.getIntExtra($S, 0)", fieldName, fieldName);
+        } else if (fieldType.equals(TypeName.LONG)) {
+            injectSpecBuilder.addStatement("target.$L = intent.getLongExtra($S, 0L)", fieldName, fieldName);
+        } else if (fieldType.equals(TypeName.SHORT)) {
+            injectSpecBuilder.addStatement("target.$L = intent.getShortExtra($S, (short)0)", fieldName, fieldName);
+        } else if (fieldType.equals(TypeName.FLOAT)) {
+            injectSpecBuilder.addStatement("target.$L = intent.getFloatExtra($S, 0.0f)", fieldName, fieldName);
+        } else if (fieldType.equals(TypeName.DOUBLE)) {
+            injectSpecBuilder.addStatement("target.$L = intent.getDoubleExtra($S, 0.0)", fieldName, fieldName);
+        } else if (fieldType.equals(TypeName.BOOLEAN)) {
+            injectSpecBuilder.addStatement("target.$L = intent.getBooleanExtra($S, false)", fieldName, fieldName);
+        } else if (fieldType.equals(TypeName.CHAR)) {
+            injectSpecBuilder.addStatement("target.$L = intent.getCharExtra($S, '0')", fieldName, fieldName);
+        } else if (fieldType.equals(TypeName.BYTE)) {
+            injectSpecBuilder.addStatement("target.$L = intent.getByteExtra($S, (byte)0)", fieldName, fieldName);
+        } else if (fieldType.equals(STRING_CLASS)) {
+            injectSpecBuilder.addStatement("target.$L = intent.getStringExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(PARCELABLE_CLASS)) {
+            injectSpecBuilder.addStatement("target.$L = intent.getParcelableExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(BUNDLE_CLASS)) {
+            injectSpecBuilder.addStatement("target.$L = intent.getBundleExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(CHAR_SEQUENCE_CLASS)) {
+            injectSpecBuilder.addStatement("target.$L = intent.getCharSequenceExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(ArrayTypeName.of(TypeName.INT))) {
+            injectSpecBuilder.addStatement("target.$L = intent.getIntArrayExtra($S)", fieldName, fieldName);
+        } else {
+            logError("Unsupported type");
+        }
     }
 
     private boolean hasAnnotation(Element e, String name) {
