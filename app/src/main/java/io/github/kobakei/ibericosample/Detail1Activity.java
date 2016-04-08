@@ -11,7 +11,7 @@ import io.github.kobakei.iberico.annotation.Extra;
 public class Detail1Activity extends AppCompatActivity {
 
     @Extra
-    String foo;
+    public String foo;
     @Extra
     int bar;
 
@@ -27,5 +27,6 @@ public class Detail1Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail1);
+        Detail1ActivityIntentHandler.inject(this, getIntent());
     }
 }
