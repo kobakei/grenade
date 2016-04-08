@@ -71,7 +71,6 @@ public class IbericoProcessor extends AbstractProcessor {
             log("Found launcher");
             try {
                 generateBuilder(element);
-                generateHandler(element);
             } catch (IOException e) {
                 logError("IO error");
             }
@@ -189,14 +188,40 @@ public class IbericoProcessor extends AbstractProcessor {
                 .build();
         intentBuilderBuilder.addMethod(buildSpecBuilder.build());
 
+        // (static) inject method
+        log("Add inject method");
+        MethodSpec.Builder injectSpecBuilder = MethodSpec.methodBuilder("inject")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(targetClass, "target")
+                .addParameter(INTENT_CLASS, "intent");
+        for (Element e : requiredElements) {
+            String fieldName = e.getSimpleName().toString();
+            TypeName fieldType = TypeName.get(e.asType());
+            if (fieldType.equals(TypeName.INT)) {
+                injectSpecBuilder.addStatement("target.$L = intent.getIntExtra($S, 0)", fieldName, fieldName);
+            } else if (fieldType.equals(TypeName.LONG)) {
+                injectSpecBuilder.addStatement("target.$L = intent.getLongExtra($S, 0L)", fieldName, fieldName);
+            } else {
+                injectSpecBuilder.addStatement("target.$L = intent.getStringExtra($S)", fieldName, fieldName);
+            }
+        }
+        for (Element e : optionalElements) {
+            String fieldName = e.getSimpleName().toString();
+            TypeName fieldType = TypeName.get(e.asType());
+            if (fieldType.equals(TypeName.INT)) {
+                injectSpecBuilder.addStatement("target.$L = intent.getIntExtra($S, 0)", fieldName, fieldName);
+            } else if (fieldType.equals(TypeName.LONG)) {
+                injectSpecBuilder.addStatement("target.$L = intent.getLongExtra($S, 0L)", fieldName, fieldName);
+            } else {
+                injectSpecBuilder.addStatement("target.$L = intent.getStringExtra($S)", fieldName, fieldName);
+            }
+        }
+        intentBuilderBuilder.addMethod(injectSpecBuilder.build());
+
         // Write
         JavaFile.builder(packageName, intentBuilderBuilder.build())
                 .build()
                 .writeTo(filer);
-    }
-
-    private void generateHandler(Element element) {
-
     }
 
     private boolean hasAnnotation(Element e, String name) {

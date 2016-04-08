@@ -37,7 +37,7 @@ public class Detail1Activity extends AppCompatActivity {
         setContentView(R.layout.activity_detail1);
         ButterKnife.bind(this);
 
-        DummyDetail1ActivityIntentHandler.inject(this, getIntent());
+        Detail1ActivityIntentBuilder.inject(this, getIntent());
 
         fooView.setText(foo);
         barView.setText(String.valueOf(bar));
