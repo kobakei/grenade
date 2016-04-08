@@ -44,5 +44,6 @@ public class Detail3Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail3);
+        Detail3ActivityIntentBuilder.inject(this, getIntent());
     }
 }

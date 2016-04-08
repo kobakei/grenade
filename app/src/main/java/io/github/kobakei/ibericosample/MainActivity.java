@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,10 +22,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void onButton2Clicked(View view) {
-        Toast.makeText(this, "button2", Toast.LENGTH_SHORT).show();
+        startActivity(new Detail2ActivityIntentBuilder("foo", 111, 222L).build(this));
     }
 
     void onButton3Clicked(View view) {
-        Toast.makeText(this, "button3", Toast.LENGTH_SHORT).show();
+        startActivity(new Detail3ActivityIntentBuilder(
+                "arg1",
+                123,
+                10000L,
+                (short)123,
+                0.5f,
+                0.5,
+                true,
+                null,
+                null,
+                null,
+                'a',
+                (byte)0x12,
+                new int[] {1,2,3}
+                ).build(this));
     }
 }

@@ -35,5 +35,6 @@ public class Detail2Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail2);
+        Detail2ActivityIntentBuilder.inject(this, getIntent());
     }
 }
