@@ -5,7 +5,7 @@ import android.content.Intent;
 /**
  * Created by keisukekobayashi on 16/04/08.
  */
-public class Detail1ActivityIntentHandler {
+public class DummyDetail1ActivityIntentHandler {
 
     public static void inject(Detail1Activity target, Intent intent) {
         target.foo = intent.getStringExtra("foo");

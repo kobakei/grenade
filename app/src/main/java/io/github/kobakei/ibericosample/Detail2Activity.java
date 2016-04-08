@@ -5,9 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import io.github.kobakei.iberico.annotation.Extra;
-import io.github.kobakei.iberico.annotation.Intent;
+import io.github.kobakei.iberico.annotation.Launcher;
 
-@Intent({
+@Launcher({
         "foo, bar1",
         "foo, bar2"
 })

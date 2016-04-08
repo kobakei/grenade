@@ -15,8 +15,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void onButton1Clicked(View view) {
-        Toast.makeText(this, "button1", Toast.LENGTH_SHORT).show();
-
         startActivity(new Detail1ActivityIntentBuilder("foo", 123)
                 .hoge("hoge")
                 .fuga("fuga")
