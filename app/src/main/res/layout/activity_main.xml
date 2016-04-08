@@ -14,11 +14,13 @@
         android:id="@+id/button1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Go to child 1"/>
+        android:text="Go to child 1"
+        android:onClick="onButton1Clicked"/>
 
     <Button
         android:id="@+id/button2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Go to child 2"/>
+        android:text="Go to child 2"
+        android:onClick="onButton2Clicked"/>
 </LinearLayout>
