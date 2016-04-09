@@ -1,9 +1,12 @@
 package io.github.kobakei.grenadesample;
 
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,7 +46,22 @@ public class MainActivity extends AppCompatActivity {
                 null,
                 'a',
                 (byte)0x12,
-                new int[] {1,2,3}
+                new int[] {1,2,3},
+                new long[] {},
+                new short[] {},
+                new float[] {},
+                new double[] {},
+                new boolean[] {},
+                new char[] {},
+                new byte[] {},
+                new String[] {},
+                new Parcelable[] {},
+                new CharSequence[] {},
+                null,
+                new ArrayList<String>(),
+                new ArrayList<CharSequence>(),
+                new ArrayList<Integer>(),
+                new ArrayList<Parcelable>()
                 ).build(this));
     }
 }

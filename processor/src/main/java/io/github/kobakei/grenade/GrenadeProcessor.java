@@ -15,6 +15,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +34,7 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
@@ -59,6 +61,7 @@ public class GrenadeProcessor extends AbstractProcessor {
     private static final ClassName PARCELABLE_CLASS = ClassName.get(Parcelable.class);
     private static final ClassName BUNDLE_CLASS = ClassName.get(Bundle.class);
     private static final ClassName CHAR_SEQUENCE_CLASS = ClassName.get(CharSequence.class);
+    private static final ClassName SERIALIZABLE_CLASS = ClassName.get(Serializable.class);
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -185,12 +188,10 @@ public class GrenadeProcessor extends AbstractProcessor {
                 .returns(INTENT_CLASS)
                 .addStatement("$T intent = new $T(context, $T.class)", INTENT_CLASS, INTENT_CLASS, targetClass);
         for (Element e : requiredElements) {
-            String fieldName = e.getSimpleName().toString();
-            buildSpecBuilder.addStatement("intent.putExtra($S, this.$L)", fieldName, fieldName);
+            addPutExtraStatement(buildSpecBuilder, e);
         }
         for (Element e : optionalElements) {
-            String fieldName = e.getSimpleName().toString();
-            buildSpecBuilder.addStatement("intent.putExtra($S, this.$L)", fieldName, fieldName);
+            addPutExtraStatement(buildSpecBuilder, e);
         }
         buildSpecBuilder
                 .addStatement("intent.addFlags(this.flags)")
@@ -260,7 +261,32 @@ public class GrenadeProcessor extends AbstractProcessor {
     }
 
     /**
-     * Add getXXXExtra statemento to inject method
+     * Add putXXXExtra statement to build method
+     * @param buildSpecBuilder
+     * @param e
+     */
+    private void addPutExtraStatement(MethodSpec.Builder buildSpecBuilder, Element e) {
+        String fieldName = e.getSimpleName().toString();
+        TypeName fieldType = TypeName.get(e.asType());
+        if (fieldType.toString().startsWith("java.util.ArrayList")) {
+            if (fieldType.toString().equals("java.util.ArrayList<java.lang.String>")) {
+                buildSpecBuilder.addStatement("intent.putStringArrayListExtra($S, this.$L)", fieldName, fieldName);
+            } else if (fieldType.toString().equals("java.util.ArrayList<java.lang.Integer>")) {
+                buildSpecBuilder.addStatement("intent.putIntegerArrayListExtra($S, this.$L)", fieldName, fieldName);
+            } else if (fieldType.toString().equals("java.util.ArrayList<java.lang.CharSequence>")) {
+                buildSpecBuilder.addStatement("intent.putCharSequenceArrayListExtra($S, this.$L)", fieldName, fieldName);
+            } else if (fieldType.toString().equals("java.util.ArrayList<android.os.Parcelable>")) {
+                buildSpecBuilder.addStatement("intent.putParcelableArrayListExtra($S, this.$L)", fieldName, fieldName);
+            } else {
+                logError("Unsupported type: " + fieldType.toString());
+            }
+        } else {
+            buildSpecBuilder.addStatement("intent.putExtra($S, this.$L)", fieldName, fieldName);
+        }
+    }
+
+    /**
+     * Add getXXXExtra statement to inject method
      * @param injectSpecBuilder
      * @param e
      */
@@ -291,10 +317,42 @@ public class GrenadeProcessor extends AbstractProcessor {
             injectSpecBuilder.addStatement("target.$L = intent.getBundleExtra($S)", fieldName, fieldName);
         } else if (fieldType.equals(CHAR_SEQUENCE_CLASS)) {
             injectSpecBuilder.addStatement("target.$L = intent.getCharSequenceExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(SERIALIZABLE_CLASS)) {
+            injectSpecBuilder.addStatement("target.$L = intent.getSerializableExtra($S)", fieldName, fieldName);
         } else if (fieldType.equals(ArrayTypeName.of(TypeName.INT))) {
             injectSpecBuilder.addStatement("target.$L = intent.getIntArrayExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(ArrayTypeName.of(TypeName.LONG))) {
+            injectSpecBuilder.addStatement("target.$L = intent.getLongArrayExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(ArrayTypeName.of(TypeName.SHORT))) {
+            injectSpecBuilder.addStatement("target.$L = intent.getShortArrayExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(ArrayTypeName.of(TypeName.FLOAT))) {
+            injectSpecBuilder.addStatement("target.$L = intent.getFloatArrayExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(ArrayTypeName.of(TypeName.DOUBLE))) {
+            injectSpecBuilder.addStatement("target.$L = intent.getDoubleArrayExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(ArrayTypeName.of(TypeName.BOOLEAN))) {
+            injectSpecBuilder.addStatement("target.$L = intent.getBooleanArrayExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(ArrayTypeName.of(TypeName.CHAR))) {
+            injectSpecBuilder.addStatement("target.$L = intent.getCharArrayExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(ArrayTypeName.of(TypeName.BYTE))) {
+            injectSpecBuilder.addStatement("target.$L = intent.getByteArrayExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(ArrayTypeName.of(STRING_CLASS))) {
+            injectSpecBuilder.addStatement("target.$L = intent.getStringArrayExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(ArrayTypeName.of(PARCELABLE_CLASS))) {
+            injectSpecBuilder.addStatement("target.$L = intent.getParcelableArrayExtra($S)", fieldName, fieldName);
+        } else if (fieldType.equals(ArrayTypeName.of(CHAR_SEQUENCE_CLASS))) {
+            injectSpecBuilder.addStatement("target.$L = intent.getCharSequenceArrayExtra($S)", fieldName, fieldName);
         } else {
-            logError("Unsupported type");
+            if (fieldType.toString().equals("java.util.ArrayList<java.lang.String>")) {
+                injectSpecBuilder.addStatement("target.$L = intent.getStringArrayListExtra($S)", fieldName, fieldName);
+            } else if (fieldType.toString().equals("java.util.ArrayList<java.lang.Integer>")) {
+                injectSpecBuilder.addStatement("target.$L = intent.getIntegerArrayListExtra($S)", fieldName, fieldName);
+            } else if (fieldType.toString().equals("java.util.ArrayList<android.os.Parcelable>")) {
+                injectSpecBuilder.addStatement("target.$L = intent.getParcelableArrayListExtra($S)", fieldName, fieldName);
+            } else if (fieldType.toString().equals("java.util.ArrayList<java.lang.CharSequence>")) {
+                injectSpecBuilder.addStatement("target.$L = intent.getCharSequenceArrayListExtra($S)", fieldName, fieldName);
+            } else {
+                logError("Unsupported type: " + fieldType.toString());
+            }
         }
     }
 

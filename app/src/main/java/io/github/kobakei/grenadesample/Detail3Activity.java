@@ -4,6 +4,9 @@ import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+
 import io.github.kobakei.grenade.annotation.Extra;
 import io.github.kobakei.grenade.annotation.Launcher;
 
@@ -39,6 +42,36 @@ public class Detail3Activity extends AppCompatActivity {
     byte arg12;
     @Extra
     int[] arg13;
+    @Extra
+    long[] arg14;
+    @Extra
+    short[] arg15;
+    @Extra
+    float[] arg16;
+    @Extra
+    double[] arg17;
+    @Extra
+    boolean[] arg18;
+    @Extra
+    char[] arg19;
+    @Extra
+    byte[] arg20;
+    @Extra
+    String[] arg21;
+    @Extra
+    Parcelable[] arg22;
+    @Extra
+    CharSequence[] arg23;
+    @Extra
+    Serializable arg24;
+    @Extra
+    ArrayList<String> arg25;
+    @Extra
+    ArrayList<CharSequence> arg26;
+    @Extra
+    ArrayList<Integer> arg27;
+    @Extra
+    ArrayList<Parcelable> arg28;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
