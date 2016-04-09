@@ -34,7 +34,7 @@ apply plugin: 'com.neenbedankt.android-apt'
 
 dependencies {
     ...
-    apt 'com.github.kobakei.grenade:compiler:LATEST_VERSION'
+    apt 'com.github.kobakei.grenade:processor:LATEST_VERSION'
     compile 'com.github.kobakei.grenade:library:LATEST_VERSION'
 }
 ```
