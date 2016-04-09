@@ -49,11 +49,13 @@ Add `@Launcher` annotation to activity and `@Extra` annotation to fields.
 @Launcher
 public class DetailActivity extends AppCompatActivity {
 
+    // Required params
     @Extra
     String foo;
     @Extra
     int bar;
 
+    // Optional params
     @Extra @Nullable
     String hoge;
     @Extra @Nullable
@@ -73,6 +75,7 @@ Once you build, `DetailActivityIntentBuilder` will be generated. Building intent
 startActivity(new DetailActivityIntentBuilder(foo, bar)
     .hoge(hoge)
     .fuga(fuga)
+    .flags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
     .build(context);
 ```
 
@@ -100,26 +103,28 @@ By specifying fields in `@Launcher` annotation, multiple constructors with diffe
 
 ```java
 @Launcher({
-  "foo, bar1",
-  "foo, bar2"
+    "foo, bar1",
+    "foo, bar2"
 })
 public class DetailActivity extends AppCompatActivity {
-  @Extra
-  String foo;
-  @Extra
-  int bar1;
-  @Extra
-  long bar2;
+    @Extra
+    String foo;
+    @Extra
+    int bar1;
+    @Extra
+    long bar2;
 
-  ...
+    ...
 }
 ```
 
 You can use them as below.
 
 ```java
-startActivity(new DetailActivityIntentBuilder(foo, bar1).build(context));
-startActivity(new DetailActivityIntentBuilder(foo, bar2).build(context));
+startActivity(new DetailActivityIntentBuilder(foo, bar1)
+    .build(context));
+startActivity(new DetailActivityIntentBuilder(foo, bar2)
+    .build(context));
 ```
 
 ## License
