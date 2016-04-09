@@ -1,11 +1,45 @@
 # grenade
 
+[![JitPack](https://jitpack.io/v/kobakei/grenade.svg)](https://jitpack.io/#kobakei/grenade)
+
 Granade is annotation based intent builder for activities and services.
+By using this library, you can build Intent with extras and retrieve extras by type safe way and less code.
+
+This library is strongly inspired by [emilsjolander/IntentBuilder](https://github.com/emilsjolander/IntentBuilder) but some advanced features are added.
 
 ## Download
 
-TODO
+Project build.gradle
 
+```groovy
+buildscript {
+    dependencies {
+        ...
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+    }
+}
+
+allprojects {
+    repositories {
+        ...
+        maven { url "https://jitpack.io" }
+    }
+}
+```
+
+App build.gradle
+
+```groovy
+apply plugin: 'com.neenbedankt.android-apt'
+
+dependencies {
+    ...
+    apt 'com.github.kobakei.grenade:compiler:LATEST_VERSION'
+    compile 'com.github.kobakei.grenade:library:LATEST_VERSION'
+}
+```
+
+`LATEST_VERSION` is  [![JitPack](https://jitpack.io/v/kobakei/grenade.svg)](https://jitpack.io/#kobakei/grenade)
 
 ## Basic usage
 
@@ -19,7 +53,7 @@ public class DetailActivity extends AppCompatActivity {
     String foo;
     @Extra
     int bar;
-    
+
     @Extra @Nullable
     String hoge;
     @Extra @Nullable
@@ -53,11 +87,39 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         // Inject fields
         DetailActivityIntentBuilder.inject(this, getIntent());
     }
 }
+```
+
+## Multiple constructors
+
+By specifying fields in `@Launcher` annotation, multiple constructors with different set of required params will be generated.
+
+```java
+@Launcher({
+  "foo, bar1",
+  "foo, bar2"
+})
+public class DetailActivity extends AppCompatActivity {
+  @Extra
+  String foo;
+  @Extra
+  int bar1;
+  @Extra
+  long bar2;
+
+  ...
+}
+```
+
+You can use them as below.
+
+```java
+startActivity(new DetailActivityIntentBuilder(foo, bar1).build(context));
+startActivity(new DetailActivityIntentBuilder(foo, bar2).build(context));
 ```
 
 ## License
