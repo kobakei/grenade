@@ -21,8 +21,12 @@ public class MainActivity extends AppCompatActivity {
                 .build(this));
     }
 
-    void onButton2Clicked(View view) {
-        startActivity(new Detail2ActivityIntentBuilder("foo", 111, 222L).build(this));
+    void onButton21Clicked(View view) {
+        startActivity(new Detail2ActivityIntentBuilder("foo", 123).build(this));
+    }
+
+    void onButton22Clicked(View view) {
+        startActivity(new Detail2ActivityIntentBuilder("foo", 10000L).build(this));
     }
 
     void onButton3Clicked(View view) {

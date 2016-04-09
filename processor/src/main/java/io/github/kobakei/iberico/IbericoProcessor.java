@@ -16,6 +16,7 @@ import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -93,6 +94,10 @@ public class IbericoProcessor extends AbstractProcessor {
         TypeSpec.Builder intentBuilderBuilder = TypeSpec.classBuilder(intentBuilderName)
                 .addModifiers(Modifier.PUBLIC);
 
+        // Launcher annotation
+        Launcher launcher = element.getAnnotation(Launcher.class);
+        String[] rules = launcher.value();
+
         // Extras
         List<Element> requiredElements = new ArrayList<>();
         List<Element> optionalElements = new ArrayList<>();
@@ -134,16 +139,14 @@ public class IbericoProcessor extends AbstractProcessor {
         intentBuilderBuilder.addField(flagFieldSpec);
 
         // Constructor
-        log("Adding constructor");
-        MethodSpec.Builder constructorSpecBuilder = MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PUBLIC);
-        for (Element e : requiredElements) {
-            String fieldName = e.getSimpleName().toString();
-            TypeName fieldType = TypeName.get(e.asType());
-            constructorSpecBuilder.addParameter(fieldType, fieldName)
-                    .addStatement("this.$L = $L", fieldName, fieldName);
+        log("Adding constructors");
+        if (rules.length == 0) {
+            addConstructor(intentBuilderBuilder, requiredElements);
+        } else {
+            for (String rule : rules) {
+                addConstructor(intentBuilderBuilder, requiredElements, rule);
+            }
         }
-        intentBuilderBuilder.addMethod(constructorSpecBuilder.build());
 
         // set option value method
         log("Add optional methods");
@@ -212,6 +215,49 @@ public class IbericoProcessor extends AbstractProcessor {
                 .writeTo(filer);
     }
 
+    /**
+     * Add constructor with params
+     * @param intentBuilderBuilder
+     * @param requiredElements
+     */
+    private void addConstructor(TypeSpec.Builder intentBuilderBuilder, List<Element> requiredElements) {
+        MethodSpec.Builder constructorSpecBuilder = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC);
+        for (Element e : requiredElements) {
+            String fieldName = e.getSimpleName().toString();
+            TypeName fieldType = TypeName.get(e.asType());
+            constructorSpecBuilder.addParameter(fieldType, fieldName)
+                    .addStatement("this.$L = $L", fieldName, fieldName);
+        }
+        intentBuilderBuilder.addMethod(constructorSpecBuilder.build());
+    }
+
+    /**
+     * Add constructor with params and rule
+     * @param intentBuilderBuilder
+     * @param requiredElements
+     * @param rule
+     */
+    private void addConstructor(TypeSpec.Builder intentBuilderBuilder, List<Element> requiredElements, String rule) {
+        List<String> tokens = Arrays.asList(rule.split(", "));
+        MethodSpec.Builder constructorSpecBuilder = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC);
+        for (Element e : requiredElements) {
+            String fieldName = e.getSimpleName().toString();
+            TypeName fieldType = TypeName.get(e.asType());
+            if (tokens.contains(fieldName)) {
+                constructorSpecBuilder.addParameter(fieldType, fieldName)
+                        .addStatement("this.$L = $L", fieldName, fieldName);
+            }
+        }
+        intentBuilderBuilder.addMethod(constructorSpecBuilder.build());
+    }
+
+    /**
+     * Add getXXXExtra statemento to inject method
+     * @param injectSpecBuilder
+     * @param e
+     */
     private void addGetExtraStatement(MethodSpec.Builder injectSpecBuilder, Element e) {
         String fieldName = e.getSimpleName().toString();
         TypeName fieldType = TypeName.get(e.asType());

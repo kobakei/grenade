@@ -18,11 +18,18 @@
         android:onClick="onButton1Clicked"/>
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/button21"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Go to child 2"
-        android:onClick="onButton2Clicked"/>
+        android:text="Go to child 2 (String, int)"
+        android:onClick="onButton21Clicked"/>
+
+    <Button
+        android:id="@+id/button22"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Go to child 2 (String, long)"
+        android:onClick="onButton22Clicked"/>
 
     <Button
         android:id="@+id/button3"

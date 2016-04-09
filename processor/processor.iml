@@ -43,5 +43,6 @@
     <orderEntry type="library" exported="" name="json-20080701" level="project" />
     <orderEntry type="library" exported="" name="httpcore-4.0.1" level="project" />
     <orderEntry type="library" exported="" name="commons-codec-1.3" level="project" />
+    <orderEntry type="library" exported="" name="processor.processor" level="project" />
   </component>
 </module>

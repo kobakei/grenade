@@ -3,7 +3,10 @@ package io.github.kobakei.ibericosample;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.TextView;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import io.github.kobakei.iberico.annotation.Extra;
 import io.github.kobakei.iberico.annotation.Launcher;
 
@@ -23,18 +26,34 @@ public class Detail2Activity extends AppCompatActivity {
     @Extra
     long bar2;
 
-    @Extra
-    @Nullable
+    @Extra @Nullable
     String hoge;
-
-    @Extra
-    @Nullable
+    @Extra @Nullable
     String fuga;
+
+
+    @Bind(R.id.foo)
+    TextView fooView;
+    @Bind(R.id.bar1)
+    TextView bar1View;
+    @Bind(R.id.bar2)
+    TextView bar2View;
+    @Bind(R.id.hoge)
+    TextView hogeView;
+    @Bind(R.id.fuga)
+    TextView fugaView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail2);
+        ButterKnife.bind(this);
         Detail2ActivityIntentBuilder.inject(this, getIntent());
+
+        fooView.setText(foo);
+        bar1View.setText(String.valueOf(bar1));
+        bar2View.setText(String.valueOf(bar2));
+        hogeView.setText(hoge);
+        fugaView.setText(fuga);
     }
 }
