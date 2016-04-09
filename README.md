@@ -1,5 +1,6 @@
 # grenade
 
+[![Build Status](https://circleci.com/gh/kobakei/grenade.svg?style=shield)](https://circleci.com/gh/kobakei/grenade/tree/master)
 [![JitPack](https://jitpack.io/v/kobakei/grenade.svg)](https://jitpack.io/#kobakei/grenade)
 
 Granade is annotation based intent builder for activities and services.
