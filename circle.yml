@@ -1,0 +1,15 @@
+machine:
+  java:
+    version: oraclejdk8
+  environment:
+    JAVA_OPTS: "-Xms256m -Xmx512m"
+    ADB_INSTALL_TIMEOUT: 100
+
+dependencies:
+  pre:
+    - echo y | android update sdk --no-ui --all --filter "tools,platform-tools,extra-android-support,extra-android-m2repository"
+    - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.3"
+
+test:
+  override:
+    - ./gradlew test
