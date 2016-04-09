@@ -120,20 +120,10 @@ public class GrenadeProcessor extends AbstractProcessor {
         // fields
         log("Adding fields");
         for (Element e : requiredElements) {
-            String fieldName = e.getSimpleName().toString();
-            TypeName fieldType = TypeName.get(e.asType());
-            log("name is " + fieldName);
-            log("type is " + fieldType.toString());
-            FieldSpec fieldSpec = FieldSpec.builder(fieldType, fieldName, Modifier.PRIVATE)
-                    .build();
-            intentBuilderBuilder.addField(fieldSpec);
+            addField(intentBuilderBuilder, e);
         }
         for (Element e : optionalElements) {
-            String fieldName = e.getSimpleName().toString();
-            TypeName fieldType = TypeName.get(e.asType());
-            FieldSpec fieldSpec = FieldSpec.builder(fieldType, fieldName, Modifier.PRIVATE)
-                    .build();
-            intentBuilderBuilder.addField(fieldSpec);
+            addField(intentBuilderBuilder, e);
         }
 
         // flag field
@@ -218,6 +208,19 @@ public class GrenadeProcessor extends AbstractProcessor {
         JavaFile.builder(packageName, intentBuilderBuilder.build())
                 .build()
                 .writeTo(filer);
+    }
+
+    /**
+     * Add field
+     * @param intentBuilderBuilder
+     * @param e
+     */
+    private void addField(TypeSpec.Builder intentBuilderBuilder, Element e) {
+        String fieldName = e.getSimpleName().toString();
+        TypeName fieldType = TypeName.get(e.asType());
+        FieldSpec fieldSpec = FieldSpec.builder(fieldType, fieldName, Modifier.PRIVATE)
+                .build();
+        intentBuilderBuilder.addField(fieldSpec);
     }
 
     /**
