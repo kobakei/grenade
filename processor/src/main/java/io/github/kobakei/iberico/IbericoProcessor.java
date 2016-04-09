@@ -154,6 +154,7 @@ public class IbericoProcessor extends AbstractProcessor {
             String fieldName = e.getSimpleName().toString();
             TypeName fieldType = TypeName.get(e.asType());
             MethodSpec setOptionalSpec = MethodSpec.methodBuilder(fieldName)
+                    .addJavadoc("Set optional field")
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(fieldType, fieldName)
                     .returns(ClassName.get(packageName, intentBuilderName))
@@ -166,6 +167,7 @@ public class IbericoProcessor extends AbstractProcessor {
         // add flags method
         log("Add flags method");
         MethodSpec flagsMethod = MethodSpec.methodBuilder("flags")
+                .addJavadoc("Add intent flags")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(TypeName.INT, "flags")
                 .returns(ClassName.get(packageName, intentBuilderName))
@@ -177,6 +179,7 @@ public class IbericoProcessor extends AbstractProcessor {
         // build method
         log("Add build method");
         MethodSpec.Builder buildSpecBuilder = MethodSpec.methodBuilder("build")
+                .addJavadoc("Build intent")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(CONTEXT_CLASS, "context")
                 .returns(INTENT_CLASS)
@@ -198,6 +201,7 @@ public class IbericoProcessor extends AbstractProcessor {
         // (static) inject method
         log("Add inject method");
         MethodSpec.Builder injectSpecBuilder = MethodSpec.methodBuilder("inject")
+                .addJavadoc("Inject fields of activity from intent")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(targetClass, "target")
                 .addParameter(INTENT_CLASS, "intent");
@@ -222,6 +226,7 @@ public class IbericoProcessor extends AbstractProcessor {
      */
     private void addConstructor(TypeSpec.Builder intentBuilderBuilder, List<Element> requiredElements) {
         MethodSpec.Builder constructorSpecBuilder = MethodSpec.constructorBuilder()
+                .addJavadoc("Constructor with required params")
                 .addModifiers(Modifier.PUBLIC);
         for (Element e : requiredElements) {
             String fieldName = e.getSimpleName().toString();
@@ -241,6 +246,7 @@ public class IbericoProcessor extends AbstractProcessor {
     private void addConstructor(TypeSpec.Builder intentBuilderBuilder, List<Element> requiredElements, String rule) {
         List<String> tokens = Arrays.asList(rule.split(", "));
         MethodSpec.Builder constructorSpecBuilder = MethodSpec.constructorBuilder()
+                .addJavadoc("Constructor with required params")
                 .addModifiers(Modifier.PUBLIC);
         for (Element e : requiredElements) {
             String fieldName = e.getSimpleName().toString();
