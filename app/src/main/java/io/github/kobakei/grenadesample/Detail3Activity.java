@@ -1,11 +1,11 @@
-package io.github.kobakei.ibericosample;
+package io.github.kobakei.grenadesample;
 
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import io.github.kobakei.iberico.annotation.Extra;
-import io.github.kobakei.iberico.annotation.Launcher;
+import io.github.kobakei.grenade.annotation.Extra;
+import io.github.kobakei.grenade.annotation.Launcher;
 
 /**
  * List of all supported field types.

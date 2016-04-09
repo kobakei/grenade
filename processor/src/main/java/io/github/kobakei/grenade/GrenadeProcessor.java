@@ -1,4 +1,4 @@
-package io.github.kobakei.iberico;
+package io.github.kobakei.grenade;
 
 import android.content.Context;
 import android.content.Intent;
@@ -36,16 +36,16 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
-import io.github.kobakei.iberico.annotation.Extra;
-import io.github.kobakei.iberico.annotation.Launcher;
+import io.github.kobakei.grenade.annotation.Extra;
+import io.github.kobakei.grenade.annotation.Launcher;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({
-        "io.github.kobakei.iberico.annotation.Launcher",
-        "io.github.kobakei.iberico.annotation.Extra"
+        "io.github.kobakei.grenade.annotation.Launcher",
+        "io.github.kobakei.grenade.annotation.Extra"
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
-public class IbericoProcessor extends AbstractProcessor {
+public class GrenadeProcessor extends AbstractProcessor {
 
     private static final boolean LOGGABLE = true;
 

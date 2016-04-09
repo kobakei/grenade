@@ -1,4 +1,4 @@
-package io.github.kobakei.ibericosample;
+package io.github.kobakei.grenadesample;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

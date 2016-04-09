@@ -1,4 +1,4 @@
-package io.github.kobakei.ibericosample;
+package io.github.kobakei.grenadesample;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;

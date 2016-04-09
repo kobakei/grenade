@@ -8,7 +8,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
-    tools:context="io.github.kobakei.ibericosample.Detail2Activity">
+    tools:context="io.github.kobakei.grenadesample.Detail2Activity">
 
     <TextView
         android:id="@+id/foo"

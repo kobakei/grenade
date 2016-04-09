@@ -1,4 +1,4 @@
-package io.github.kobakei.iberico.annotation;
+package io.github.kobakei.grenade.annotation;
 
 /**
  * Created by keisukekobayashi on 16/04/08.

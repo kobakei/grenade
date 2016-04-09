@@ -1,4 +1,4 @@
-package io.github.kobakei.iberico;
+package io.github.kobakei.grenadesample;
 
 import org.junit.Test;
 
