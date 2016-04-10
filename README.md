@@ -3,7 +3,7 @@
 [![Build Status](https://circleci.com/gh/kobakei/grenade.svg?style=shield)](https://circleci.com/gh/kobakei/grenade/tree/master)
 [![JitPack](https://jitpack.io/v/kobakei/grenade.svg)](https://jitpack.io/#kobakei/grenade)
 
-Granade is annotation based intent builder for activities and services.
+Grenade is annotation based intent builder for activities and services.
 By using this library, you can build Intent with extras and retrieve extras by type safe way and less code.
 
 This library is strongly inspired by [emilsjolander/IntentBuilder](https://github.com/emilsjolander/IntentBuilder) but some advanced features are added.
