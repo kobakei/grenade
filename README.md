@@ -160,6 +160,10 @@ startActivity(new DetailActivityIntentBuilder(new User())
     .build(context));
 ```
 
+## Proguard
+
+If you use grenade with Parceler, [proguard setting of Parceler](https://github.com/johncarl81/parceler#configuring-proguard) is needed.
+
 ## License
 
 ```
