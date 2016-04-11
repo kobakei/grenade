@@ -18,7 +18,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -62,6 +64,74 @@ public class GrenadeProcessor extends AbstractProcessor {
     private static final ClassName BUNDLE_CLASS = ClassName.get(Bundle.class);
     private static final ClassName CHAR_SEQUENCE_CLASS = ClassName.get(CharSequence.class);
     private static final ClassName SERIALIZABLE_CLASS = ClassName.get(Serializable.class);
+
+    private static final Map<String, String> PUT_EXTRA_STATEMENTS = new HashMap<String, String>() {{
+        put("java.lang.Integer",        "intent.putExtra($S, this.$L)");
+        put("java.lang.Long",           "intent.putExtra($S, this.$L)");
+        put("java.lang.Short",          "intent.putExtra($S, this.$L)");
+        put("java.lang.Float",          "intent.putExtra($S, this.$L)");
+        put("java.lang.Double",         "intent.putExtra($S, this.$L)");
+        put("java.lang.Boolean",        "intent.putExtra($S, this.$L)");
+        put("java.lang.Byte",           "intent.putExtra($S, this.$L)");
+        put("java.lang.Character",      "intent.putExtra($S, this.$L)");
+        put("java.lang.String",         "intent.putExtra($S, this.$L)");
+        put("java.lang.CharSequence",   "intent.putExtra($S, this.$L)");
+        put("java.io.Serializable",     "intent.putExtra($S, this.$L)");
+        put("android.os.Parcelable",    "intent.putExtra($S, this.$L)");
+        put("android.os.Bundle",        "intent.putExtra($S, this.$L)");
+
+        put("int[]",         "intent.putExtra($S, this.$L)");
+        put("long[]",        "intent.putExtra($S, this.$L)");
+        put("short[]",       "intent.putExtra($S, this.$L)");
+        put("float[]",       "intent.putExtra($S, this.$L)");
+        put("double[]",      "intent.putExtra($S, this.$L)");
+        put("boolean[]",     "intent.putExtra($S, this.$L)");
+        put("char[]",        "intent.putExtra($S, this.$L)");
+        put("byte[]",        "intent.putExtra($S, this.$L)");
+        put("java.lang.String[]",        "intent.putExtra($S, this.$L)");
+        put("java.lang.CharSequence[]",        "intent.putExtra($S, this.$L)");
+        put("android.os.Parcelable[]",        "intent.putExtra($S, this.$L)");
+
+        put("java.util.ArrayList<java.lang.Integer>",       "intent.putIntegerArrayListExtra($S, this.$L)");
+        put("java.util.ArrayList<java.lang.String>",        "intent.putStringArrayListExtra($S, this.$L)");
+        put("java.util.ArrayList<java.lang.CharSequence>",  "intent.putCharSequenceArrayListExtra($S, this.$L)");
+        put("java.util.ArrayList<android.os.Parcelable>",   "intent.putParcelableArrayListExtra($S, this.$L)");
+    }};
+
+    private static final Map<String, String> GET_EXTRA_STATEMENTS = new HashMap<String, String>() {{
+        put("java.lang.Integer",        "target.$L = intent.getIntExtra($S, 0)");
+        put("java.lang.Long",           "target.$L = intent.getLongExtra($S, 0L)");
+        put("java.lang.Short",          "target.$L = intent.getShortExtra($S, (short)0)");
+        put("java.lang.Float",          "target.$L = intent.getFloatExtra($S, 0.0f)");
+        put("java.lang.Double",         "target.$L = intent.getDoubleExtra($S, 0.0)");
+        put("java.lang.Boolean",        "target.$L = intent.getBooleanExtra($S, false)");
+        put("java.lang.Byte",           "target.$L = intent.getByteExtra($S, (byte)0)");
+        put("java.lang.Character",      "target.$L = intent.getCharExtra($S, (char)0)");
+        put("java.lang.String",         "target.$L = intent.getStringExtra($S)");
+        put("java.lang.CharSequence",   "target.$L = intent.getCharSequenceExtra($S)");
+        put("java.io.Serializable",     "target.$L = intent.getSerializableExtra($S)");
+        put("android.os.Parcelable",    "target.$L = intent.getParcelableExtra($S)");
+        put("android.os.Bundle",        "target.$L = intent.getBundleExtra($S)");
+
+        put("int[]",                    "target.$L = intent.getIntArrayExtra($S)");
+        put("long[]",                   "target.$L = intent.getLongArrayExtra($S)");
+        put("short[]",                  "target.$L = intent.getShortArrayExtra($S)");
+        put("float[]",                  "target.$L = intent.getFloatArrayExtra($S)");
+        put("double[]",                 "target.$L = intent.getDoubleArrayExtra($S)");
+        put("boolean[]",                "target.$L = intent.getBooleanArrayExtra($S)");
+        put("char[]",                   "target.$L = intent.getCharArrayExtra($S)");
+        put("byte[]",                   "target.$L = intent.getByteArrayExtra($S)");
+        put("java.lang.String[]",       "target.$L = intent.getStringArrayExtra($S)");
+        put("java.lang.CharSequence[]", "target.$L = intent.getCharSequenceArrayExtra($S)");
+        put("android.os.Parcelable[]",  "target.$L = intent.getParcelableArrayExtra($S)");
+
+        put("java.util.ArrayList<java.lang.Integer>",       "target.$L = intent.getIntegerArrayListExtra($S)");
+        put("java.util.ArrayList<java.lang.String>",        "target.$L = intent.getStringArrayListExtra($S)");
+        put("java.util.ArrayList<java.lang.CharSequence>",  "target.$L = intent.getCharSequenceArrayListExtra($S)");
+        put("java.util.ArrayList<android.os.Parcelable>",   "target.$L = intent.getParcelableArrayListExtra($S)");
+    }};
+
+
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -270,22 +340,12 @@ public class GrenadeProcessor extends AbstractProcessor {
      */
     private void addPutExtraStatement(MethodSpec.Builder buildSpecBuilder, Element e) {
         String fieldName = e.getSimpleName().toString();
-        TypeName fieldType = TypeName.get(e.asType());
-        if (fieldType.toString().startsWith("java.util.ArrayList")) {
-            if (fieldType.toString().equals("java.util.ArrayList<java.lang.String>")) {
-                buildSpecBuilder.addStatement("intent.putStringArrayListExtra($S, this.$L)", fieldName, fieldName);
-            } else if (fieldType.toString().equals("java.util.ArrayList<java.lang.Integer>")) {
-                buildSpecBuilder.addStatement("intent.putIntegerArrayListExtra($S, this.$L)", fieldName, fieldName);
-            } else if (fieldType.toString().equals("java.util.ArrayList<java.lang.CharSequence>")) {
-                buildSpecBuilder.addStatement("intent.putCharSequenceArrayListExtra($S, this.$L)", fieldName, fieldName);
-            } else if (fieldType.toString().equals("java.util.ArrayList<android.os.Parcelable>")) {
-                buildSpecBuilder.addStatement("intent.putParcelableArrayListExtra($S, this.$L)", fieldName, fieldName);
-            } else {
-                logError("Unsupported type: " + fieldType.toString());
-            }
-        } else {
-            buildSpecBuilder.addStatement("intent.putExtra($S, this.$L)", fieldName, fieldName);
+        TypeName fieldType = TypeName.get(e.asType()).box();
+        String statement = PUT_EXTRA_STATEMENTS.get(fieldType.toString());
+        if (statement == null) {
+            logError("Unsupported type: " + fieldType.toString());
         }
+        buildSpecBuilder.addStatement(statement, fieldName, fieldName);
     }
 
     /**
@@ -295,68 +355,12 @@ public class GrenadeProcessor extends AbstractProcessor {
      */
     private void addGetExtraStatement(MethodSpec.Builder injectSpecBuilder, Element e) {
         String fieldName = e.getSimpleName().toString();
-        TypeName fieldType = TypeName.get(e.asType());
-        if (fieldType.equals(TypeName.INT)) {
-            injectSpecBuilder.addStatement("target.$L = intent.getIntExtra($S, 0)", fieldName, fieldName);
-        } else if (fieldType.equals(TypeName.LONG)) {
-            injectSpecBuilder.addStatement("target.$L = intent.getLongExtra($S, 0L)", fieldName, fieldName);
-        } else if (fieldType.equals(TypeName.SHORT)) {
-            injectSpecBuilder.addStatement("target.$L = intent.getShortExtra($S, (short)0)", fieldName, fieldName);
-        } else if (fieldType.equals(TypeName.FLOAT)) {
-            injectSpecBuilder.addStatement("target.$L = intent.getFloatExtra($S, 0.0f)", fieldName, fieldName);
-        } else if (fieldType.equals(TypeName.DOUBLE)) {
-            injectSpecBuilder.addStatement("target.$L = intent.getDoubleExtra($S, 0.0)", fieldName, fieldName);
-        } else if (fieldType.equals(TypeName.BOOLEAN)) {
-            injectSpecBuilder.addStatement("target.$L = intent.getBooleanExtra($S, false)", fieldName, fieldName);
-        } else if (fieldType.equals(TypeName.CHAR)) {
-            injectSpecBuilder.addStatement("target.$L = intent.getCharExtra($S, '0')", fieldName, fieldName);
-        } else if (fieldType.equals(TypeName.BYTE)) {
-            injectSpecBuilder.addStatement("target.$L = intent.getByteExtra($S, (byte)0)", fieldName, fieldName);
-        } else if (fieldType.equals(STRING_CLASS)) {
-            injectSpecBuilder.addStatement("target.$L = intent.getStringExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(PARCELABLE_CLASS)) {
-            injectSpecBuilder.addStatement("target.$L = intent.getParcelableExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(BUNDLE_CLASS)) {
-            injectSpecBuilder.addStatement("target.$L = intent.getBundleExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(CHAR_SEQUENCE_CLASS)) {
-            injectSpecBuilder.addStatement("target.$L = intent.getCharSequenceExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(SERIALIZABLE_CLASS)) {
-            injectSpecBuilder.addStatement("target.$L = intent.getSerializableExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(ArrayTypeName.of(TypeName.INT))) {
-            injectSpecBuilder.addStatement("target.$L = intent.getIntArrayExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(ArrayTypeName.of(TypeName.LONG))) {
-            injectSpecBuilder.addStatement("target.$L = intent.getLongArrayExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(ArrayTypeName.of(TypeName.SHORT))) {
-            injectSpecBuilder.addStatement("target.$L = intent.getShortArrayExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(ArrayTypeName.of(TypeName.FLOAT))) {
-            injectSpecBuilder.addStatement("target.$L = intent.getFloatArrayExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(ArrayTypeName.of(TypeName.DOUBLE))) {
-            injectSpecBuilder.addStatement("target.$L = intent.getDoubleArrayExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(ArrayTypeName.of(TypeName.BOOLEAN))) {
-            injectSpecBuilder.addStatement("target.$L = intent.getBooleanArrayExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(ArrayTypeName.of(TypeName.CHAR))) {
-            injectSpecBuilder.addStatement("target.$L = intent.getCharArrayExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(ArrayTypeName.of(TypeName.BYTE))) {
-            injectSpecBuilder.addStatement("target.$L = intent.getByteArrayExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(ArrayTypeName.of(STRING_CLASS))) {
-            injectSpecBuilder.addStatement("target.$L = intent.getStringArrayExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(ArrayTypeName.of(PARCELABLE_CLASS))) {
-            injectSpecBuilder.addStatement("target.$L = intent.getParcelableArrayExtra($S)", fieldName, fieldName);
-        } else if (fieldType.equals(ArrayTypeName.of(CHAR_SEQUENCE_CLASS))) {
-            injectSpecBuilder.addStatement("target.$L = intent.getCharSequenceArrayExtra($S)", fieldName, fieldName);
-        } else {
-            if (fieldType.toString().equals("java.util.ArrayList<java.lang.String>")) {
-                injectSpecBuilder.addStatement("target.$L = intent.getStringArrayListExtra($S)", fieldName, fieldName);
-            } else if (fieldType.toString().equals("java.util.ArrayList<java.lang.Integer>")) {
-                injectSpecBuilder.addStatement("target.$L = intent.getIntegerArrayListExtra($S)", fieldName, fieldName);
-            } else if (fieldType.toString().equals("java.util.ArrayList<android.os.Parcelable>")) {
-                injectSpecBuilder.addStatement("target.$L = intent.getParcelableArrayListExtra($S)", fieldName, fieldName);
-            } else if (fieldType.toString().equals("java.util.ArrayList<java.lang.CharSequence>")) {
-                injectSpecBuilder.addStatement("target.$L = intent.getCharSequenceArrayListExtra($S)", fieldName, fieldName);
-            } else {
-                logError("Unsupported type: " + fieldType.toString());
-            }
+        TypeName fieldType = TypeName.get(e.asType()).box();
+        String statement = GET_EXTRA_STATEMENTS.get(fieldType.toString());
+        if (statement == null) {
+            logError("Unsupported type: " + fieldType.toString());
         }
+        injectSpecBuilder.addStatement(statement, fieldName, fieldName);
     }
 
     private boolean hasAnnotation(Element e, String name) {

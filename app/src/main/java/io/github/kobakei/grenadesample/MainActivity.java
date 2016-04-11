@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     void onButton3Clicked(View view) {
         startActivity(new Detail3ActivityIntentBuilder(
-                "arg1",
+                "Hello world",
                 123,
                 10000L,
                 (short)123,
@@ -54,11 +55,15 @@ public class MainActivity extends AppCompatActivity {
                 new boolean[] {},
                 new char[] {},
                 new byte[] {},
-                new String[] {},
+                new String[] {"AAA", "BBB", "CCC"},
                 new Parcelable[] {},
                 new CharSequence[] {},
                 null,
-                new ArrayList<String>(),
+                new ArrayList<String>(){{
+                    add("aaa");
+                    add("bbb");
+                    add("ccc");
+                }},
                 new ArrayList<CharSequence>(),
                 new ArrayList<Integer>(),
                 new ArrayList<Parcelable>()
