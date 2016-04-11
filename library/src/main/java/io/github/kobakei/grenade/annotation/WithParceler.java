@@ -4,9 +4,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 /**
- * Created by keisukekobayashi on 16/04/08.
+ * Created by keisuke on 16/04/11.
  */
-@Target(ElementType.TYPE)
-public @interface Launcher {
-    String[] value() default {};
+@Target(ElementType.FIELD)
+public @interface WithParceler {
 }

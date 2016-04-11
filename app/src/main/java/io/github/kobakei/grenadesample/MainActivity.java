@@ -9,6 +9,8 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import io.github.kobakei.grenadesample.entity.User;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -68,5 +70,10 @@ public class MainActivity extends AppCompatActivity {
                 new ArrayList<Integer>(),
                 new ArrayList<Parcelable>()
                 ).build(this));
+    }
+
+    void onButton4Clicked(View view) {
+        User user = new User("Jack", "Bauer", 50);
+        startActivity(new Detail4ActivityIntentBuilder(user).build(this));
     }
 }

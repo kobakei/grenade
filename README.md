@@ -128,6 +128,36 @@ startActivity(new DetailActivityIntentBuilder(foo, bar2)
     .build(context));
 ```
 
+## Work with Parceler
+
+[Parceler](https://github.com/johncarl81/parceler) is a famous library to generate Parcelable reader/writer.
+By adding `@WithParceler` annotation, Grenade will convert entity class to Parcelable with Parceler.
+To install Parceler to your project, please read Parceler's README.
+
+```java
+@Parcel
+public class User {
+    String firstName;
+    String lastName;
+    ...
+}
+```
+
+```java
+@Launcher
+public class DetailActivity extends AppCompatActivity {
+    @Extra @WithParceler
+    User user;
+    ...
+}
+```
+
+```java
+User user = new User("Jack", "Bauer");
+startActivity(new DetailActivityIntentBuilder(user)
+    .build(context));
+```
+
 ## License
 
 ```

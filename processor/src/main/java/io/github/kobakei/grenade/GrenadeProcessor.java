@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 
 import com.google.auto.service.AutoService;
-import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
@@ -36,17 +35,18 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
 import io.github.kobakei.grenade.annotation.Extra;
 import io.github.kobakei.grenade.annotation.Launcher;
+import io.github.kobakei.grenade.annotation.WithParceler;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({
         "io.github.kobakei.grenade.annotation.Launcher",
-        "io.github.kobakei.grenade.annotation.Extra"
+        "io.github.kobakei.grenade.annotation.Extra",
+        "org.parceler.Parcel"
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class GrenadeProcessor extends AbstractProcessor {
@@ -59,11 +59,7 @@ public class GrenadeProcessor extends AbstractProcessor {
 
     private static final ClassName INTENT_CLASS = ClassName.get(Intent.class);
     private static final ClassName CONTEXT_CLASS = ClassName.get(Context.class);
-    private static final ClassName STRING_CLASS = ClassName.get(String.class);
-    private static final ClassName PARCELABLE_CLASS = ClassName.get(Parcelable.class);
-    private static final ClassName BUNDLE_CLASS = ClassName.get(Bundle.class);
-    private static final ClassName CHAR_SEQUENCE_CLASS = ClassName.get(CharSequence.class);
-    private static final ClassName SERIALIZABLE_CLASS = ClassName.get(Serializable.class);
+    private static final ClassName PARCELER_CLASS = ClassName.get("org.parceler", "Parcels");
 
     private static final Map<String, String> PUT_EXTRA_STATEMENTS = new HashMap<String, String>() {{
         put("java.lang.Integer",        "intent.putExtra($S, this.$L)");
@@ -131,6 +127,9 @@ public class GrenadeProcessor extends AbstractProcessor {
         put("java.util.ArrayList<android.os.Parcelable>",   "target.$L = intent.getParcelableArrayListExtra($S)");
     }};
 
+    // Parceler
+    private static final String PARCELER_PUT_EXTRA_STATEMENT = "intent.putExtra($S, $T.wrap(this.$L))";
+    private static final String PARCELER_GET_EXTRA_STATEMENT = "target.$L = $T.unwrap(intent.getParcelableExtra($S))";
 
 
     @Override
@@ -341,11 +340,17 @@ public class GrenadeProcessor extends AbstractProcessor {
     private void addPutExtraStatement(MethodSpec.Builder buildSpecBuilder, Element e) {
         String fieldName = e.getSimpleName().toString();
         TypeName fieldType = TypeName.get(e.asType()).box();
-        String statement = PUT_EXTRA_STATEMENTS.get(fieldType.toString());
-        if (statement == null) {
-            logError("Unsupported type: " + fieldType.toString());
+        if (withParceler(e)) {
+            buildSpecBuilder.addStatement(PARCELER_PUT_EXTRA_STATEMENT, fieldName, PARCELER_CLASS, fieldName);
+            return;
+        } else {
+            String statement = PUT_EXTRA_STATEMENTS.get(fieldType.toString());
+            if (statement != null) {
+                buildSpecBuilder.addStatement(statement, fieldName, fieldName);
+                return;
+            }
         }
-        buildSpecBuilder.addStatement(statement, fieldName, fieldName);
+        logError("Unsupported type: " + fieldType.toString());
     }
 
     /**
@@ -356,11 +361,17 @@ public class GrenadeProcessor extends AbstractProcessor {
     private void addGetExtraStatement(MethodSpec.Builder injectSpecBuilder, Element e) {
         String fieldName = e.getSimpleName().toString();
         TypeName fieldType = TypeName.get(e.asType()).box();
-        String statement = GET_EXTRA_STATEMENTS.get(fieldType.toString());
-        if (statement == null) {
-            logError("Unsupported type: " + fieldType.toString());
+        if (withParceler(e)) {
+            injectSpecBuilder.addStatement(PARCELER_GET_EXTRA_STATEMENT, fieldName, PARCELER_CLASS, fieldName);
+            return;
+        } else {
+            String statement = GET_EXTRA_STATEMENTS.get(fieldType.toString());
+            if (statement != null) {
+                injectSpecBuilder.addStatement(statement, fieldName, fieldName);
+                return;
+            }
         }
-        injectSpecBuilder.addStatement(statement, fieldName, fieldName);
+        logError("Unsupported type: " + fieldType.toString());
     }
 
     private boolean hasAnnotation(Element e, String name) {
@@ -370,6 +381,11 @@ public class GrenadeProcessor extends AbstractProcessor {
             }
         }
         return false;
+    }
+
+    private boolean withParceler(Element e) {
+        WithParceler withParceler = e.getAnnotation(WithParceler.class);
+        return withParceler != null;
     }
 
     private void log(String msg) {

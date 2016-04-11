@@ -8,16 +8,17 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="io.github.kobakei.grenadesample.MainActivity">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="io.github.kobakei.grenadesample.Detail1Activity" />
-        <activity android:name="io.github.kobakei.grenadesample.Detail2Activity" />
-        <activity android:name="io.github.kobakei.grenadesample.Detail3Activity"></activity>
+        <activity android:name=".Detail1Activity" />
+        <activity android:name=".Detail2Activity" />
+        <activity android:name=".Detail3Activity" />
+        <activity android:name=".Detail4Activity"></activity>
     </application>
 
 </manifest>
