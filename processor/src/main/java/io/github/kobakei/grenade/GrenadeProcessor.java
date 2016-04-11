@@ -2,8 +2,6 @@ package io.github.kobakei.grenade;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.os.Parcelable;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
@@ -14,7 +12,6 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,11 +33,11 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
 import io.github.kobakei.grenade.annotation.Extra;
 import io.github.kobakei.grenade.annotation.Launcher;
-import io.github.kobakei.grenade.annotation.WithParceler;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({
@@ -56,6 +53,7 @@ public class GrenadeProcessor extends AbstractProcessor {
     private Filer filer;
     private Messager messager;
     private Elements elements;
+    private Types types;
 
     private static final ClassName INTENT_CLASS = ClassName.get(Intent.class);
     private static final ClassName CONTEXT_CLASS = ClassName.get(Context.class);
@@ -138,6 +136,7 @@ public class GrenadeProcessor extends AbstractProcessor {
         this.messager = processingEnv.getMessager();
         this.filer = processingEnv.getFiler();
         this.elements = processingEnv.getElementUtils();
+        this.types = processingEnv.getTypeUtils();
     }
 
     @Override
@@ -340,7 +339,8 @@ public class GrenadeProcessor extends AbstractProcessor {
     private void addPutExtraStatement(MethodSpec.Builder buildSpecBuilder, Element e) {
         String fieldName = e.getSimpleName().toString();
         TypeName fieldType = TypeName.get(e.asType()).box();
-        if (withParceler(e)) {
+        Element classElement = types.asElement(e.asType());
+        if (hasAnnotation(classElement, "Parcel")) {
             buildSpecBuilder.addStatement(PARCELER_PUT_EXTRA_STATEMENT, fieldName, PARCELER_CLASS, fieldName);
             return;
         } else {
@@ -361,7 +361,8 @@ public class GrenadeProcessor extends AbstractProcessor {
     private void addGetExtraStatement(MethodSpec.Builder injectSpecBuilder, Element e) {
         String fieldName = e.getSimpleName().toString();
         TypeName fieldType = TypeName.get(e.asType()).box();
-        if (withParceler(e)) {
+        Element classElement = types.asElement(e.asType());
+        if (hasAnnotation(classElement, "Parcel")) {
             injectSpecBuilder.addStatement(PARCELER_GET_EXTRA_STATEMENT, fieldName, PARCELER_CLASS, fieldName);
             return;
         } else {
@@ -375,17 +376,15 @@ public class GrenadeProcessor extends AbstractProcessor {
     }
 
     private boolean hasAnnotation(Element e, String name) {
+        if (e == null) {
+            return false;
+        }
         for (AnnotationMirror annotation : e.getAnnotationMirrors()) {
             if (annotation.getAnnotationType().asElement().getSimpleName().toString().equals(name)) {
                 return true;
             }
         }
         return false;
-    }
-
-    private boolean withParceler(Element e) {
-        WithParceler withParceler = e.getAnnotation(WithParceler.class);
-        return withParceler != null;
     }
 
     private void log(String msg) {

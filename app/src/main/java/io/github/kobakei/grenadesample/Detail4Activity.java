@@ -1,22 +1,19 @@
 package io.github.kobakei.grenadesample;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
-
-import org.parceler.Parcels;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.github.kobakei.grenade.annotation.Extra;
 import io.github.kobakei.grenade.annotation.Launcher;
-import io.github.kobakei.grenade.annotation.WithParceler;
 import io.github.kobakei.grenadesample.entity.User;
 
 @Launcher
 public class Detail4Activity extends AppCompatActivity {
 
-    @Extra @WithParceler
+    @Extra
     User user;
 
     @Bind(R.id.firstName)
