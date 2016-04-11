@@ -12,10 +12,11 @@ import io.github.kobakei.grenade.annotation.Launcher;
 
 /**
  * Sample of multiple constructor
+ * Field names should be joined with ','.
  */
 @Launcher({
-        "foo, bar1",
-        "foo, bar2"
+        "foo,bar1",
+        "foo,bar2"
 })
 public class Detail2Activity extends AppCompatActivity {
 
@@ -24,7 +25,7 @@ public class Detail2Activity extends AppCompatActivity {
     @Extra
     int bar1;
     @Extra
-    long bar2;
+    boolean bar2;
 
     @Extra @Nullable
     String hoge;

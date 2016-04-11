@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void onButton22Clicked(View view) {
-        startActivity(new Detail2ActivityIntentBuilder("foo", 10000L).build(this));
+        startActivity(new Detail2ActivityIntentBuilder("foo", true).build(this));
     }
 
     void onButton3Clicked(View view) {

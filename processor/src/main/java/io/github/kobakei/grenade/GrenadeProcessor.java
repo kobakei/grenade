@@ -316,7 +316,7 @@ public class GrenadeProcessor extends AbstractProcessor {
      * @param rule
      */
     private void addConstructor(TypeSpec.Builder intentBuilderBuilder, List<Element> requiredElements, String rule) {
-        List<String> tokens = Arrays.asList(rule.split(", "));
+        List<String> tokens = Arrays.asList(rule.split(","));
         MethodSpec.Builder constructorSpecBuilder = MethodSpec.constructorBuilder()
                 .addJavadoc("Constructor with required params")
                 .addModifiers(Modifier.PUBLIC);

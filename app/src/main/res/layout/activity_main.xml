@@ -28,7 +28,7 @@
         android:id="@+id/button22"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Go to child 2 (String, long)"
+        android:text="Go to child 2 (String, boolean)"
         android:onClick="onButton22Clicked"/>
 
     <Button

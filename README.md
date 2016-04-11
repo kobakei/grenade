@@ -105,8 +105,8 @@ By specifying fields in `@Launcher` annotation, multiple constructors with diffe
 
 ```java
 @Launcher({
-    "foo, bar1",
-    "foo, bar2"
+    "foo,bar1",
+    "foo,bar2"
 })
 public class DetailActivity extends AppCompatActivity {
     @Extra
