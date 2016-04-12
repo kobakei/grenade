@@ -1,4 +1,4 @@
-# grenade
+# Grenade
 
 [![Build Status](https://circleci.com/gh/kobakei/grenade.svg?style=shield)](https://circleci.com/gh/kobakei/grenade/tree/master)
 [![JitPack](https://jitpack.io/v/kobakei/grenade.svg)](https://jitpack.io/#kobakei/grenade)
@@ -129,7 +129,7 @@ startActivity(new DetailActivityIntentBuilder(foo, bar2)
     .build(context));
 ```
 
-## Work with Parceler
+## Built-in support of Parceler
 
 [Parceler](https://github.com/johncarl81/parceler) is a famous library to generate Parcelable reader/writer.
 Grenade offers build-in support of Parceler.
@@ -162,7 +162,7 @@ startActivity(new DetailActivityIntentBuilder(new User())
 
 ## Proguard
 
-If you use grenade with Parceler, [proguard setting of Parceler](https://github.com/johncarl81/parceler#configuring-proguard) is needed.
+If you use Grenade with Parceler, [proguard setting of Parceler](https://github.com/johncarl81/parceler#configuring-proguard) is needed.
 
 ## License
 
