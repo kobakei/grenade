@@ -32,6 +32,9 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
@@ -163,6 +166,7 @@ public class GrenadeProcessor extends AbstractProcessor {
 
         // Class
         TypeSpec.Builder intentBuilderBuilder = TypeSpec.classBuilder(intentBuilderName)
+                .addJavadoc("Launcher of $T", targetClass)
                 .addModifiers(Modifier.PUBLIC);
 
         // Launcher annotation
@@ -339,8 +343,7 @@ public class GrenadeProcessor extends AbstractProcessor {
     private void addPutExtraStatement(MethodSpec.Builder buildSpecBuilder, Element e) {
         String fieldName = e.getSimpleName().toString();
         TypeName fieldType = TypeName.get(e.asType()).box();
-        Element classElement = types.asElement(e.asType());
-        if (hasAnnotation(classElement, "Parcel")) {
+        if (shouldUseParceler(e)) {
             buildSpecBuilder.addStatement(PARCELER_PUT_EXTRA_STATEMENT, fieldName, PARCELER_CLASS, fieldName);
             return;
         } else {
@@ -350,7 +353,7 @@ public class GrenadeProcessor extends AbstractProcessor {
                 return;
             }
         }
-        logError("Unsupported type: " + fieldType.toString());
+        logError("[putExtra] Unsupported type: " + fieldType.toString());
     }
 
     /**
@@ -361,8 +364,7 @@ public class GrenadeProcessor extends AbstractProcessor {
     private void addGetExtraStatement(MethodSpec.Builder injectSpecBuilder, Element e) {
         String fieldName = e.getSimpleName().toString();
         TypeName fieldType = TypeName.get(e.asType()).box();
-        Element classElement = types.asElement(e.asType());
-        if (hasAnnotation(classElement, "Parcel")) {
+        if (shouldUseParceler(e)) {
             injectSpecBuilder.addStatement(PARCELER_GET_EXTRA_STATEMENT, fieldName, PARCELER_CLASS, fieldName);
             return;
         } else {
@@ -372,7 +374,7 @@ public class GrenadeProcessor extends AbstractProcessor {
                 return;
             }
         }
-        logError("Unsupported type: " + fieldType.toString());
+        logError("[getExtra] Unsupported type: " + fieldType.toString());
     }
 
     private boolean hasAnnotation(Element e, String name) {
@@ -381,6 +383,25 @@ public class GrenadeProcessor extends AbstractProcessor {
         }
         for (AnnotationMirror annotation : e.getAnnotationMirrors()) {
             if (annotation.getAnnotationType().asElement().getSimpleName().toString().equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean shouldUseParceler(Element fieldElement) {
+        log("field = " + fieldElement.getSimpleName().toString());
+        TypeElement typeElement = (TypeElement) types.asElement(fieldElement.asType());
+        if (typeElement == null) {
+            return false;
+        }
+        if (hasAnnotation(typeElement, "Parcel")) {
+            return true;
+        }
+        DeclaredType declaredType = (DeclaredType) fieldElement.asType();
+        for (TypeMirror genericParam : declaredType.getTypeArguments()) {
+            log("gp = " + genericParam.toString());
+            if (hasAnnotation(types.asElement(genericParam), "Parcel")) {
                 return true;
             }
         }

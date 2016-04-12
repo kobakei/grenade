@@ -8,6 +8,7 @@ import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import io.github.kobakei.grenadesample.entity.User;
 
@@ -74,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
 
     void onButton4Clicked(View view) {
         User user = new User("Jack", "Bauer", 50);
-        startActivity(new Detail4ActivityIntentBuilder(user).build(this));
+        List<User> friends = new ArrayList<>();
+        friends.add(new User("Chloe", "O'brian", 30));
+        friends.add(new User("Tony", "Almeida", 45));
+        startActivity(new Detail4ActivityIntentBuilder(user, friends).build(this));
     }
 }

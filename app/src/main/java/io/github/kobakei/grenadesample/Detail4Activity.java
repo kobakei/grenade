@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
+import java.util.List;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.github.kobakei.grenade.annotation.Extra;
@@ -15,6 +17,8 @@ public class Detail4Activity extends AppCompatActivity {
 
     @Extra
     User user;
+    @Extra
+    List<User> friends;
 
     @Bind(R.id.firstName)
     TextView firstNameView;
@@ -22,6 +26,8 @@ public class Detail4Activity extends AppCompatActivity {
     TextView lastNameView;
     @Bind(R.id.age)
     TextView ageView;
+    @Bind(R.id.friends)
+    TextView friendsView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,5 +39,10 @@ public class Detail4Activity extends AppCompatActivity {
         firstNameView.setText(user.firstName);
         lastNameView.setText(user.lastName);
         ageView.setText(String.valueOf(user.age));
+        String friendsText = "";
+        for (User friend : friends) {
+            friendsText += friend.firstName + " ";
+        }
+        friendsView.setText(friendsText);
     }
 }
