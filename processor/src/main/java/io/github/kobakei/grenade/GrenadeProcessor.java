@@ -51,7 +51,7 @@ import io.github.kobakei.grenade.annotation.Launcher;
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class GrenadeProcessor extends AbstractProcessor {
 
-    private static final boolean LOGGABLE = true;
+    private static final boolean LOGGABLE = false;
 
     private Filer filer;
     private Messager messager;
@@ -203,6 +203,11 @@ public class GrenadeProcessor extends AbstractProcessor {
                 .build();
         intentBuilderBuilder.addField(flagFieldSpec);
 
+        // action field
+        FieldSpec actionFieldSpec = FieldSpec.builder(TypeName.get(String.class), "action", Modifier.PRIVATE)
+                .build();
+        intentBuilderBuilder.addField(actionFieldSpec);
+
         // Constructor
         log("Adding constructors");
         if (rules.length == 0) {
@@ -241,6 +246,18 @@ public class GrenadeProcessor extends AbstractProcessor {
                 .build();
         intentBuilderBuilder.addMethod(flagsMethod);
 
+        // set action method
+        log("Add action method");
+        MethodSpec actionMethod = MethodSpec.methodBuilder("action")
+                .addJavadoc("Set action")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(TypeName.get(String.class), "action")
+                .returns(ClassName.get(packageName, intentBuilderName))
+                .addStatement("this.action = action")
+                .addStatement("return this")
+                .build();
+        intentBuilderBuilder.addMethod(actionMethod);
+
         // build method
         log("Add build method");
         MethodSpec.Builder buildSpecBuilder = MethodSpec.methodBuilder("build")
@@ -257,6 +274,7 @@ public class GrenadeProcessor extends AbstractProcessor {
         }
         buildSpecBuilder
                 .addStatement("intent.addFlags(this.flags)")
+                .addStatement("intent.setAction(this.action)")
                 .addStatement("return intent")
                 .build();
         intentBuilderBuilder.addMethod(buildSpecBuilder.build());

@@ -80,4 +80,10 @@ public class MainActivity extends AppCompatActivity {
         friends.add(new User("Tony", "Almeida", 45));
         startActivity(new Detail4ActivityIntentBuilder(user, friends).build(this));
     }
+
+    void onButton5Clicked(View view) {
+        startService(new MyIntentServiceIntentBuilder("hoge", "fuga")
+                .action(MyIntentService.ACTION_FOO)
+                .build(this));
+    }
 }

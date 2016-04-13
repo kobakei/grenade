@@ -18,7 +18,11 @@
         <activity android:name=".Detail1Activity" />
         <activity android:name=".Detail2Activity" />
         <activity android:name=".Detail3Activity" />
-        <activity android:name=".Detail4Activity"></activity>
+        <activity android:name=".Detail4Activity" />
+
+        <service
+            android:name=".MyIntentService"
+            android:exported="false"></service>
     </application>
 
 </manifest>
