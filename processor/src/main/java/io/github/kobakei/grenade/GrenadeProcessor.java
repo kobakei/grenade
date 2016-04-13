@@ -269,10 +269,10 @@ public class GrenadeProcessor extends AbstractProcessor {
                 .addParameter(targetClass, "target")
                 .addParameter(INTENT_CLASS, "intent");
         for (Element e : requiredElements) {
-            addGetExtraStatement(injectSpecBuilder, e);
+            addGetExtraStatement(injectSpecBuilder, e, false);
         }
         for (Element e : optionalElements) {
-            addGetExtraStatement(injectSpecBuilder, e);
+            addGetExtraStatement(injectSpecBuilder, e, true);
         }
         intentBuilderBuilder.addMethod(injectSpecBuilder.build());
 
@@ -360,21 +360,27 @@ public class GrenadeProcessor extends AbstractProcessor {
      * Add getXXXExtra statement to inject method
      * @param injectSpecBuilder
      * @param e
+     * @param isOptional
      */
-    private void addGetExtraStatement(MethodSpec.Builder injectSpecBuilder, Element e) {
+    private void addGetExtraStatement(MethodSpec.Builder injectSpecBuilder, Element e, boolean isOptional) {
         String fieldName = e.getSimpleName().toString();
         TypeName fieldType = TypeName.get(e.asType()).box();
+        if (isOptional) {
+            injectSpecBuilder.beginControlFlow("if (intent.hasExtra($S))", fieldName);
+        }
         if (shouldUseParceler(e)) {
             injectSpecBuilder.addStatement(PARCELER_GET_EXTRA_STATEMENT, fieldName, PARCELER_CLASS, fieldName);
-            return;
         } else {
             String statement = GET_EXTRA_STATEMENTS.get(fieldType.toString());
             if (statement != null) {
                 injectSpecBuilder.addStatement(statement, fieldName, fieldName);
-                return;
+            } else {
+                logError("[getExtra] Unsupported type: " + fieldType.toString());
             }
         }
-        logError("[getExtra] Unsupported type: " + fieldType.toString());
+        if (isOptional) {
+            injectSpecBuilder.endControlFlow();
+        }
     }
 
     private boolean hasAnnotation(Element e, String name) {
