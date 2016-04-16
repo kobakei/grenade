@@ -2,14 +2,12 @@ package io.github.kobakei.grenadesample;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import io.github.kobakei.grenade.annotation.Extra;
-import io.github.kobakei.grenade.annotation.Launcher;
+import io.github.kobakei.grenade.annotation.Navigator;
 
-@Launcher
+@Navigator
 public class MyIntentService extends IntentService {
 
     private static final String TAG = MyIntentService.class.getSimpleName();
@@ -28,7 +26,7 @@ public class MyIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        MyIntentServiceIntentBuilder.inject(this, intent);
+        MyIntentServiceNavigator.inject(this, intent);
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_FOO.equals(action)) {

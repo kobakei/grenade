@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void onButton1Clicked(View view) {
-        startActivity(new Detail1ActivityIntentBuilder("foo", 123)
+        startActivity(new Detail1ActivityNavigator("foo", 123)
                 .hoge("hoge")
                 .fuga("fuga")
                 .flags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
@@ -29,15 +29,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void onButton21Clicked(View view) {
-        startActivity(new Detail2ActivityIntentBuilder("foo", 123).build(this));
+        startActivity(new Detail2ActivityNavigator("foo", 123).build(this));
     }
 
     void onButton22Clicked(View view) {
-        startActivity(new Detail2ActivityIntentBuilder("foo", true).build(this));
+        startActivity(new Detail2ActivityNavigator("foo", true).build(this));
     }
 
     void onButton3Clicked(View view) {
-        startActivity(new Detail3ActivityIntentBuilder(
+        startActivity(new Detail3ActivityNavigator(
                 "Hello world",
                 123,
                 10000L,
@@ -78,11 +78,11 @@ public class MainActivity extends AppCompatActivity {
         List<User> friends = new ArrayList<>();
         friends.add(new User("Chloe", "O'brian", 30));
         friends.add(new User("Tony", "Almeida", 45));
-        startActivity(new Detail4ActivityIntentBuilder(user, friends).build(this));
+        startActivity(new Detail4ActivityNavigator(user, friends).build(this));
     }
 
     void onButton5Clicked(View view) {
-        startService(new MyIntentServiceIntentBuilder("hoge", "fuga")
+        startService(new MyIntentServiceNavigator("hoge", "fuga")
                 .action(MyIntentService.ACTION_FOO)
                 .build(this));
     }

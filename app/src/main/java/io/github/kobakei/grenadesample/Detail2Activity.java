@@ -1,6 +1,5 @@
 package io.github.kobakei.grenadesample;
 
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -8,13 +7,14 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.github.kobakei.grenade.annotation.Extra;
-import io.github.kobakei.grenade.annotation.Launcher;
+import io.github.kobakei.grenade.annotation.Navigator;
+import io.github.kobakei.grenade.annotation.Optional;
 
 /**
  * Sample of multiple constructor
  * Field names should be joined with ','.
  */
-@Launcher({
+@Navigator({
         "foo,bar1",
         "foo,bar2"
 })
@@ -27,9 +27,9 @@ public class Detail2Activity extends AppCompatActivity {
     @Extra
     boolean bar2;
 
-    @Extra @Nullable
+    @Extra @Optional
     String hoge;
-    @Extra @Nullable
+    @Extra @Optional
     String fuga;
 
 
@@ -49,7 +49,7 @@ public class Detail2Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail2);
         ButterKnife.bind(this);
-        Detail2ActivityIntentBuilder.inject(this, getIntent());
+        Detail2ActivityNavigator.inject(this, getIntent());
 
         fooView.setText(foo);
         bar1View.setText(String.valueOf(bar1));

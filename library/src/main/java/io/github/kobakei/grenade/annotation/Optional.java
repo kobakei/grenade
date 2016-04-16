@@ -4,9 +4,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 /**
- * This annotation denotes that the field can be put and injected by Grenade.
- * Created by keisukekobayashi on 16/04/08.
+ * This annotation denotes that the field is optional.
+ * Created by keisuke on 16/04/17.
  */
 @Target(ElementType.FIELD)
-public @interface Extra {
+public @interface Optional {
 }
