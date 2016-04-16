@@ -99,6 +99,27 @@ public class DetailActivity extends AppCompatActivity {
 }
 ```
 
+Of course, you can use Grenade to start Service and BroadcastReceiver as same way.
+
+```java
+@Launcher
+public class MyIntentService extends IntentService{
+
+    @Extra
+    String foo;
+    @Extra
+    String baz;
+
+    @Override
+    protected void onHandleIntent(Intent intent) {
+      MyIntentServiceIntentBuilder.inject(this, intent);
+    }
+}
+
+// Code to start service
+startService(new MyIntentServiceIntentBuilder("foo", "baz").build(this));
+```
+
 ## Multiple constructors
 
 By specifying fields in `@Launcher` annotation, multiple constructors with different set of required params will be generated.
