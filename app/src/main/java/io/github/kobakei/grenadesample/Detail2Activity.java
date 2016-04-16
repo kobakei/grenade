@@ -8,13 +8,13 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.github.kobakei.grenade.annotation.Extra;
-import io.github.kobakei.grenade.annotation.Launcher;
+import io.github.kobakei.grenade.annotation.Navigator;
 
 /**
  * Sample of multiple constructor
  * Field names should be joined with ','.
  */
-@Launcher({
+@Navigator({
         "foo,bar1",
         "foo,bar2"
 })
@@ -49,7 +49,7 @@ public class Detail2Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail2);
         ButterKnife.bind(this);
-        Detail2ActivityIntentBuilder.inject(this, getIntent());
+        Detail2ActivityNavigator.inject(this, getIntent());
 
         fooView.setText(foo);
         bar1View.setText(String.valueOf(bar1));

@@ -9,10 +9,10 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.github.kobakei.grenade.annotation.Extra;
-import io.github.kobakei.grenade.annotation.Launcher;
+import io.github.kobakei.grenade.annotation.Navigator;
 import io.github.kobakei.grenadesample.entity.User;
 
-@Launcher
+@Navigator
 public class Detail4Activity extends AppCompatActivity {
 
     @Extra
@@ -34,7 +34,7 @@ public class Detail4Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail4);
         ButterKnife.bind(this);
-        Detail4ActivityIntentBuilder.inject(this, getIntent());
+        Detail4ActivityNavigator.inject(this, getIntent());
 
         firstNameView.setText(user.firstName);
         lastNameView.setText(user.lastName);

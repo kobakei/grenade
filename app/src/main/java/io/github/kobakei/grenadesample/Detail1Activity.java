@@ -8,12 +8,12 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.github.kobakei.grenade.annotation.Extra;
-import io.github.kobakei.grenade.annotation.Launcher;
+import io.github.kobakei.grenade.annotation.Navigator;
 
 /**
  * Simple sample
  */
-@Launcher
+@Navigator
 public class Detail1Activity extends AppCompatActivity {
 
     @Extra
@@ -41,7 +41,7 @@ public class Detail1Activity extends AppCompatActivity {
         setContentView(R.layout.activity_detail1);
         ButterKnife.bind(this);
 
-        Detail1ActivityIntentBuilder.inject(this, getIntent());
+        Detail1ActivityNavigator.inject(this, getIntent());
 
         fooView.setText(foo);
         barView.setText(String.valueOf(bar));

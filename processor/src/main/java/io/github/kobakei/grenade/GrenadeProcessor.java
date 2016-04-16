@@ -32,7 +32,6 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -40,7 +39,7 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
 import io.github.kobakei.grenade.annotation.Extra;
-import io.github.kobakei.grenade.annotation.Launcher;
+import io.github.kobakei.grenade.annotation.Navigator;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({
@@ -145,7 +144,7 @@ public class GrenadeProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
-        Class<Launcher> launcherClass = Launcher.class;
+        Class<Navigator> launcherClass = Navigator.class;
         for (Element element : roundEnv.getElementsAnnotatedWith(launcherClass)) {
             log("Found launcher");
             try {
@@ -161,17 +160,17 @@ public class GrenadeProcessor extends AbstractProcessor {
     private void generateBuilder(Element element) throws IOException {
         String className = element.getSimpleName().toString();
         String packageName = elements.getPackageOf(element).getQualifiedName().toString();
-        String intentBuilderName = className + "IntentBuilder";
+        String navigatorName = className + "Navigator";
         ClassName targetClass = ClassName.get(packageName, className);
 
         // Class
-        TypeSpec.Builder intentBuilderBuilder = TypeSpec.classBuilder(intentBuilderName)
+        TypeSpec.Builder navigatorBuilder = TypeSpec.classBuilder(navigatorName)
                 .addJavadoc("Launcher of $T", targetClass)
                 .addModifiers(Modifier.PUBLIC);
 
         // Launcher annotation
-        Launcher launcher = element.getAnnotation(Launcher.class);
-        String[] rules = launcher.value();
+        Navigator navigator = element.getAnnotation(Navigator.class);
+        String[] rules = navigator.value();
 
         // Extras
         List<Element> requiredElements = new ArrayList<>();
@@ -192,29 +191,29 @@ public class GrenadeProcessor extends AbstractProcessor {
         // fields
         log("Adding fields");
         for (Element e : requiredElements) {
-            addField(intentBuilderBuilder, e);
+            addField(navigatorBuilder, e);
         }
         for (Element e : optionalElements) {
-            addField(intentBuilderBuilder, e);
+            addField(navigatorBuilder, e);
         }
 
         // flag field
         FieldSpec flagFieldSpec = FieldSpec.builder(TypeName.INT, "flags", Modifier.PRIVATE)
                 .build();
-        intentBuilderBuilder.addField(flagFieldSpec);
+        navigatorBuilder.addField(flagFieldSpec);
 
         // action field
         FieldSpec actionFieldSpec = FieldSpec.builder(TypeName.get(String.class), "action", Modifier.PRIVATE)
                 .build();
-        intentBuilderBuilder.addField(actionFieldSpec);
+        navigatorBuilder.addField(actionFieldSpec);
 
         // Constructor
         log("Adding constructors");
         if (rules.length == 0) {
-            addConstructor(intentBuilderBuilder, requiredElements);
+            addConstructor(navigatorBuilder, requiredElements);
         } else {
             for (String rule : rules) {
-                addConstructor(intentBuilderBuilder, requiredElements, rule);
+                addConstructor(navigatorBuilder, requiredElements, rule);
             }
         }
 
@@ -227,11 +226,11 @@ public class GrenadeProcessor extends AbstractProcessor {
                     .addJavadoc("Set optional field")
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(fieldType, fieldName)
-                    .returns(ClassName.get(packageName, intentBuilderName))
+                    .returns(ClassName.get(packageName, navigatorName))
                     .addStatement("this.$L = $L", fieldName, fieldName)
                     .addStatement("return this")
                     .build();
-            intentBuilderBuilder.addMethod(setOptionalSpec);
+            navigatorBuilder.addMethod(setOptionalSpec);
         }
 
         // add flags method
@@ -240,11 +239,11 @@ public class GrenadeProcessor extends AbstractProcessor {
                 .addJavadoc("Add intent flags")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(TypeName.INT, "flags")
-                .returns(ClassName.get(packageName, intentBuilderName))
+                .returns(ClassName.get(packageName, navigatorName))
                 .addStatement("this.flags = flags")
                 .addStatement("return this")
                 .build();
-        intentBuilderBuilder.addMethod(flagsMethod);
+        navigatorBuilder.addMethod(flagsMethod);
 
         // set action method
         log("Add action method");
@@ -252,11 +251,11 @@ public class GrenadeProcessor extends AbstractProcessor {
                 .addJavadoc("Set action")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(TypeName.get(String.class), "action")
-                .returns(ClassName.get(packageName, intentBuilderName))
+                .returns(ClassName.get(packageName, navigatorName))
                 .addStatement("this.action = action")
                 .addStatement("return this")
                 .build();
-        intentBuilderBuilder.addMethod(actionMethod);
+        navigatorBuilder.addMethod(actionMethod);
 
         // build method
         log("Add build method");
@@ -277,7 +276,7 @@ public class GrenadeProcessor extends AbstractProcessor {
                 .addStatement("intent.setAction(this.action)")
                 .addStatement("return intent")
                 .build();
-        intentBuilderBuilder.addMethod(buildSpecBuilder.build());
+        navigatorBuilder.addMethod(buildSpecBuilder.build());
 
         // (static) inject method
         log("Add inject method");
@@ -292,33 +291,33 @@ public class GrenadeProcessor extends AbstractProcessor {
         for (Element e : optionalElements) {
             addGetExtraStatement(injectSpecBuilder, e, true);
         }
-        intentBuilderBuilder.addMethod(injectSpecBuilder.build());
+        navigatorBuilder.addMethod(injectSpecBuilder.build());
 
         // Write
-        JavaFile.builder(packageName, intentBuilderBuilder.build())
+        JavaFile.builder(packageName, navigatorBuilder.build())
                 .build()
                 .writeTo(filer);
     }
 
     /**
      * Add field
-     * @param intentBuilderBuilder
+     * @param navigatorBuilder
      * @param e
      */
-    private void addField(TypeSpec.Builder intentBuilderBuilder, Element e) {
+    private void addField(TypeSpec.Builder navigatorBuilder, Element e) {
         String fieldName = e.getSimpleName().toString();
         TypeName fieldType = TypeName.get(e.asType());
         FieldSpec fieldSpec = FieldSpec.builder(fieldType, fieldName, Modifier.PRIVATE)
                 .build();
-        intentBuilderBuilder.addField(fieldSpec);
+        navigatorBuilder.addField(fieldSpec);
     }
 
     /**
      * Add constructor with params
-     * @param intentBuilderBuilder
+     * @param navigatorBuilder
      * @param requiredElements
      */
-    private void addConstructor(TypeSpec.Builder intentBuilderBuilder, List<Element> requiredElements) {
+    private void addConstructor(TypeSpec.Builder navigatorBuilder, List<Element> requiredElements) {
         MethodSpec.Builder constructorSpecBuilder = MethodSpec.constructorBuilder()
                 .addJavadoc("Constructor with required params")
                 .addModifiers(Modifier.PUBLIC);
@@ -328,16 +327,16 @@ public class GrenadeProcessor extends AbstractProcessor {
             constructorSpecBuilder.addParameter(fieldType, fieldName)
                     .addStatement("this.$L = $L", fieldName, fieldName);
         }
-        intentBuilderBuilder.addMethod(constructorSpecBuilder.build());
+        navigatorBuilder.addMethod(constructorSpecBuilder.build());
     }
 
     /**
      * Add constructor with params and rule
-     * @param intentBuilderBuilder
+     * @param navigatorBuilder
      * @param requiredElements
      * @param rule
      */
-    private void addConstructor(TypeSpec.Builder intentBuilderBuilder, List<Element> requiredElements, String rule) {
+    private void addConstructor(TypeSpec.Builder navigatorBuilder, List<Element> requiredElements, String rule) {
         List<String> tokens = Arrays.asList(rule.split(","));
         MethodSpec.Builder constructorSpecBuilder = MethodSpec.constructorBuilder()
                 .addJavadoc("Constructor with required params")
@@ -350,7 +349,7 @@ public class GrenadeProcessor extends AbstractProcessor {
                         .addStatement("this.$L = $L", fieldName, fieldName);
             }
         }
-        intentBuilderBuilder.addMethod(constructorSpecBuilder.build());
+        navigatorBuilder.addMethod(constructorSpecBuilder.build());
     }
 
     /**

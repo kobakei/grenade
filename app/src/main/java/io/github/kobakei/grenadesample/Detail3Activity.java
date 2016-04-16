@@ -11,12 +11,12 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.github.kobakei.grenade.annotation.Extra;
-import io.github.kobakei.grenade.annotation.Launcher;
+import io.github.kobakei.grenade.annotation.Navigator;
 
 /**
  * List of all supported field types.
  */
-@Launcher
+@Navigator
 public class Detail3Activity extends AppCompatActivity {
 
     @Extra
@@ -89,7 +89,7 @@ public class Detail3Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail3);
         ButterKnife.bind(this);
-        Detail3ActivityIntentBuilder.inject(this, getIntent());
+        Detail3ActivityNavigator.inject(this, getIntent());
 
         arg1View.setText(arg1);
         String text21 = "";
