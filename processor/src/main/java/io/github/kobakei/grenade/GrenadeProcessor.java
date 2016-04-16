@@ -48,7 +48,7 @@ import io.github.kobakei.grenade.annotation.Optional;
         "io.github.kobakei.grenade.annotation.Extra",
         "org.parceler.Parcel"
 })
-@SupportedSourceVersion(SourceVersion.RELEASE_7)
+@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class GrenadeProcessor extends AbstractProcessor {
 
     private static final boolean LOGGABLE = false;
