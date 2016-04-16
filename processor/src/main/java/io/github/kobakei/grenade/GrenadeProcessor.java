@@ -40,6 +40,7 @@ import javax.tools.Diagnostic;
 
 import io.github.kobakei.grenade.annotation.Extra;
 import io.github.kobakei.grenade.annotation.Navigator;
+import io.github.kobakei.grenade.annotation.Optional;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({
@@ -178,7 +179,8 @@ public class GrenadeProcessor extends AbstractProcessor {
         for (Element elem : element.getEnclosedElements()) {
             Extra extra = elem.getAnnotation(Extra.class);
             if (extra != null) {
-                if (hasAnnotation(elem, "Nullable")) {
+                Optional optional = elem.getAnnotation(Optional.class);
+                if (optional != null) {
                     log("Optional");
                     optionalElements.add(elem);
                 } else {

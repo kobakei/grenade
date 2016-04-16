@@ -1,6 +1,5 @@
 package io.github.kobakei.grenadesample;
 
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -9,6 +8,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.github.kobakei.grenade.annotation.Extra;
 import io.github.kobakei.grenade.annotation.Navigator;
+import io.github.kobakei.grenade.annotation.Optional;
 
 /**
  * Simple sample
@@ -20,9 +20,9 @@ public class Detail1Activity extends AppCompatActivity {
     public String foo;
     @Extra
     int bar;
-    @Extra @Nullable
+    @Extra @Optional
     String hoge;
-    @Extra @Nullable
+    @Extra @Optional
     String fuga;
 
 
