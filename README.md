@@ -45,10 +45,10 @@ dependencies {
 
 ## Basic usage
 
-Add `@Launcher` annotation to activity and `@Extra` annotation to fields.
+Add `@Navigator` annotation to activity and `@Extra` annotation to fields.
 
 ```java
-@Launcher
+@Navigator
 public class DetailActivity extends AppCompatActivity {
 
     // Required params
@@ -58,9 +58,9 @@ public class DetailActivity extends AppCompatActivity {
     int bar;
 
     // Optional params
-    @Extra @Nullable
+    @Extra @Optional
     String hoge;
-    @Extra @Nullable
+    @Extra @Optional
     boolean fuga;
 
     @Override
@@ -70,11 +70,11 @@ public class DetailActivity extends AppCompatActivity {
 }
 ```
 
-Once you build, `DetailActivityIntentBuilder` will be generated. Building intent to launch `DetailActivity` is as below.
+Once you build, `DetailActivityNavigator` will be generated. Building intent to launch `DetailActivity` is as below.
 
 ```java
 // Build intent and start activity
-startActivity(new DetailActivityIntentBuilder(foo, bar)
+startActivity(new DetailActivityNavigator(foo, bar)
     .hoge(hoge)
     .fuga(fuga)
     .flags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
@@ -84,7 +84,7 @@ startActivity(new DetailActivityIntentBuilder(foo, bar)
 And handling intent is as below.
 
 ```java
-@Launcher
+@Navigator
 public class DetailActivity extends AppCompatActivity {
 
     ...
@@ -94,7 +94,7 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // Inject fields
-        DetailActivityIntentBuilder.inject(this, getIntent());
+        DetailActivityNavigator.inject(this, getIntent());
     }
 }
 ```
@@ -102,7 +102,7 @@ public class DetailActivity extends AppCompatActivity {
 Of course, you can use Grenade to start Service and BroadcastReceiver as same way.
 
 ```java
-@Launcher
+@Navigator
 public class MyIntentService extends IntentService{
 
     @Extra
@@ -112,20 +112,20 @@ public class MyIntentService extends IntentService{
 
     @Override
     protected void onHandleIntent(Intent intent) {
-      MyIntentServiceIntentBuilder.inject(this, intent);
+      MyIntentServiceNavigator.inject(this, intent);
     }
 }
 
 // Code to start service
-startService(new MyIntentServiceIntentBuilder("foo", "baz").build(this));
+startService(new MyIntentServiceNavigator("foo", "baz").build(this));
 ```
 
 ## Multiple constructors
 
-By specifying fields in `@Launcher` annotation, multiple constructors with different set of required params will be generated.
+By specifying fields in `@Navigator` annotation, multiple constructors with different set of required params will be generated.
 
 ```java
-@Launcher({
+@Navigator({
     "foo,bar1",
     "foo,bar2"
 })
@@ -144,9 +144,9 @@ public class DetailActivity extends AppCompatActivity {
 You can use them as below.
 
 ```java
-startActivity(new DetailActivityIntentBuilder(foo, bar1)
+startActivity(new DetailActivityNavigator(foo, bar1)
     .build(context));
-startActivity(new DetailActivityIntentBuilder(foo, bar2)
+startActivity(new DetailActivityNavigator(foo, bar2)
     .build(context));
 ```
 
@@ -167,7 +167,7 @@ public class User {
 ```
 
 ```java
-@Launcher
+@Navigator
 public class DetailActivity extends AppCompatActivity {
     // Use parcelable entity as field
     @Extra
@@ -177,13 +177,13 @@ public class DetailActivity extends AppCompatActivity {
 ```
 
 ```java
-startActivity(new DetailActivityIntentBuilder(new User())
+startActivity(new DetailActivityNavigator(new User())
     .build(context));
 ```
 
-## Proguard
+## ProGuard
 
-If you use Grenade with Parceler, [proguard setting of Parceler](https://github.com/johncarl81/parceler#configuring-proguard) is needed.
+If you use Grenade with Parceler, [ProGuard setting of Parceler](https://github.com/johncarl81/parceler#configuring-proguard) is needed.
 
 ## License
 
