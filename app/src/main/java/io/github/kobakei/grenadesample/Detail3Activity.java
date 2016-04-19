@@ -19,7 +19,8 @@ import io.github.kobakei.grenade.annotation.Navigator;
 @Navigator
 public class Detail3Activity extends AppCompatActivity {
 
-    @Extra
+    // test option to specify key
+    @Extra(key = "__arg1__")
     String arg1;
     @Extra
     int arg2;

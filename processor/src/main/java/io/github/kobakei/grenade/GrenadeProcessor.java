@@ -361,14 +361,16 @@ public class GrenadeProcessor extends AbstractProcessor {
      */
     private void addPutExtraStatement(MethodSpec.Builder buildSpecBuilder, Element e) {
         String fieldName = e.getSimpleName().toString();
+        Extra extra = e.getAnnotation(Extra.class);
+        String keyName = extra.key().length() > 0 ? extra.key() : fieldName;
         TypeName fieldType = TypeName.get(e.asType()).box();
         if (shouldUseParceler(e)) {
-            buildSpecBuilder.addStatement(PARCELER_PUT_EXTRA_STATEMENT, fieldName, PARCELER_CLASS, fieldName);
+            buildSpecBuilder.addStatement(PARCELER_PUT_EXTRA_STATEMENT, keyName, PARCELER_CLASS, fieldName);
             return;
         } else {
             String statement = PUT_EXTRA_STATEMENTS.get(fieldType.toString());
             if (statement != null) {
-                buildSpecBuilder.addStatement(statement, fieldName, fieldName);
+                buildSpecBuilder.addStatement(statement, keyName, fieldName);
                 return;
             }
         }
@@ -383,16 +385,18 @@ public class GrenadeProcessor extends AbstractProcessor {
      */
     private void addGetExtraStatement(MethodSpec.Builder injectSpecBuilder, Element e, boolean isOptional) {
         String fieldName = e.getSimpleName().toString();
+        Extra extra = e.getAnnotation(Extra.class);
+        String keyName = extra.key().length() > 0 ? extra.key() : fieldName;
         TypeName fieldType = TypeName.get(e.asType()).box();
         if (isOptional) {
             injectSpecBuilder.beginControlFlow("if (intent.hasExtra($S))", fieldName);
         }
         if (shouldUseParceler(e)) {
-            injectSpecBuilder.addStatement(PARCELER_GET_EXTRA_STATEMENT, fieldName, PARCELER_CLASS, fieldName);
+            injectSpecBuilder.addStatement(PARCELER_GET_EXTRA_STATEMENT, fieldName, PARCELER_CLASS, keyName);
         } else {
             String statement = GET_EXTRA_STATEMENTS.get(fieldType.toString());
             if (statement != null) {
-                injectSpecBuilder.addStatement(statement, fieldName, fieldName);
+                injectSpecBuilder.addStatement(statement, fieldName, keyName);
             } else {
                 logError("[getExtra] Unsupported type: " + fieldType.toString());
             }

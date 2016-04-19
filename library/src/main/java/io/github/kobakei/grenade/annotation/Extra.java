@@ -9,4 +9,9 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 public @interface Extra {
+    /**
+     * Internal key used by getExtra/putExtra.
+     * @return
+     */
+    String key() default "";
 }
