@@ -17,7 +17,7 @@ Project build.gradle
 buildscript {
     dependencies {
         ...
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 
