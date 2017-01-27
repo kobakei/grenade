@@ -33,6 +33,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -316,9 +317,26 @@ public class GrenadeProcessor extends AbstractProcessor {
         for (Element e : onActivityResultElements) {
             String methodName = e.getSimpleName().toString();
             OnActivityResult oar = e.getAnnotation(OnActivityResult.class);
+
             onActivityResultSpecBuilder
-                    .beginControlFlow("if (requestCode == $L && java.util.Arrays.asList($L).contains(resultCode))", oar.requestCode(), join(oar.resultCodes()))
-                    .addStatement("target.$L()", methodName)
+                    .beginControlFlow("if (requestCode == $L && java.util.Arrays.asList($L).contains(resultCode))", oar.requestCode(), join(oar.resultCodes()));
+
+            ExecutableType executableType = (ExecutableType) e.asType();
+            String args = "";
+            for (int i = 0; i < executableType.getParameterTypes().size(); i++) {
+                TypeMirror paramTypeMirror = executableType.getParameterTypes().get(i);
+                String key = "param" + i;
+                onActivityResultSpecBuilder
+                        .addStatement("$T $L = intent.getStringExtra($S)", paramTypeMirror, key, key);
+
+                args += key;
+                if (i < executableType.getParameterTypes().size() - 1) {
+                    args += ",";
+                }
+            }
+
+            onActivityResultSpecBuilder
+                    .addStatement("target.$L($L)", methodName, args)
                     .endControlFlow();
         }
         navigatorBuilder.addMethod(onActivityResultSpecBuilder.build());
