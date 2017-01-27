@@ -28,11 +28,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void onButton1Clicked(View view) {
-        startActivity(new Detail1ActivityNavigator("foo", 123)
+        Intent intent = new Detail1ActivityNavigator("foo", 123)
                 .hoge("hoge")
                 .fuga("fuga")
                 .flags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
-                .build(this));
+                .build(this);
+        startActivityForResult(intent, REQ_CODE_DETAIL1);
     }
 
     void onButton21Clicked(View view) {
@@ -97,10 +98,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        MainActivityNavigator.onActivityResult(this, requestCode, resultCode, data);
     }
 
     @OnActivityResult(requestCode = REQ_CODE_DETAIL1, resultCodes = {Activity.RESULT_OK})
     void onActivityResult_Detail1_OK() {
         Toast.makeText(this, "onActivityResult_Detail1_OK", Toast.LENGTH_SHORT).show();
+    }
+
+    @OnActivityResult(requestCode = REQ_CODE_DETAIL1, resultCodes = {Activity.RESULT_CANCELED})
+    void onActivityResult_Detail1_CANCELED() {
+        Toast.makeText(this, "onActivityResult_Detail1_CANCELED", Toast.LENGTH_SHORT).show();
     }
 }

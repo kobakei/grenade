@@ -40,6 +40,7 @@ import javax.tools.Diagnostic;
 
 import io.github.kobakei.grenade.annotation.Extra;
 import io.github.kobakei.grenade.annotation.Navigator;
+import io.github.kobakei.grenade.annotation.OnActivityResult;
 import io.github.kobakei.grenade.annotation.Optional;
 
 @AutoService(Processor.class)
@@ -51,7 +52,7 @@ import io.github.kobakei.grenade.annotation.Optional;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class GrenadeProcessor extends AbstractProcessor {
 
-    private static final boolean LOGGABLE = false;
+    private static final boolean LOGGABLE = true; // TODO
 
     private Filer filer;
     private Messager messager;
@@ -173,10 +174,12 @@ public class GrenadeProcessor extends AbstractProcessor {
         Navigator navigator = element.getAnnotation(Navigator.class);
         String[] rules = navigator.value();
 
-        // Extras
+        // Find @Extra and @OnActivityResult
         List<Element> requiredElements = new ArrayList<>();
         List<Element> optionalElements = new ArrayList<>();
+        List<Element> onActivityResultElements = new ArrayList<>();
         for (Element elem : element.getEnclosedElements()) {
+            // Extra
             Extra extra = elem.getAnnotation(Extra.class);
             if (extra != null) {
                 Optional optional = elem.getAnnotation(Optional.class);
@@ -187,6 +190,12 @@ public class GrenadeProcessor extends AbstractProcessor {
                     log("Required");
                     requiredElements.add(elem);
                 }
+            }
+
+            // OAR
+            OnActivityResult onActivityResult = elem.getAnnotation(OnActivityResult.class);
+            if (onActivityResult != null) {
+                onActivityResultElements.add(elem);
             }
         }
 
@@ -294,6 +303,25 @@ public class GrenadeProcessor extends AbstractProcessor {
             addGetExtraStatement(injectSpecBuilder, e, true);
         }
         navigatorBuilder.addMethod(injectSpecBuilder.build());
+
+        // (static) onActivityResult method
+        log("Add onActivity method");
+        MethodSpec.Builder onActivityResultSpecBuilder = MethodSpec.methodBuilder("onActivityResult")
+                .addJavadoc("Call this method in your Activity's onActivityResult")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(targetClass, "target")
+                .addParameter(TypeName.INT, "requestCode")
+                .addParameter(TypeName.INT, "resultCode")
+                .addParameter(INTENT_CLASS, "intent");
+        for (Element e : onActivityResultElements) {
+            String methodName = e.getSimpleName().toString();
+            OnActivityResult oar = e.getAnnotation(OnActivityResult.class);
+            onActivityResultSpecBuilder
+                    .beginControlFlow("if (requestCode == $L && java.util.Arrays.asList($L).contains(resultCode))", oar.requestCode(), join(oar.resultCodes()))
+                    .addStatement("target.$L()", methodName)
+                    .endControlFlow();
+        }
+        navigatorBuilder.addMethod(onActivityResultSpecBuilder.build());
 
         // Write
         JavaFile.builder(packageName, navigatorBuilder.build())
@@ -435,6 +463,17 @@ public class GrenadeProcessor extends AbstractProcessor {
             }
         }
         return false;
+    }
+
+    private static String join(int[] a) {
+        String str = "";
+        for (int i = 0; i < a.length; i++) {
+            str += a[i];
+            if (i < a.length - 1) {
+                str += ",";
+            }
+        }
+        return str;
     }
 
     private void log(String msg) {
