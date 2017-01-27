@@ -1,18 +1,25 @@
 package io.github.kobakei.grenadesample;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import io.github.kobakei.grenade.annotation.Navigator;
+import io.github.kobakei.grenade.annotation.OnActivityResult;
 import io.github.kobakei.grenadesample.entity.User;
 
+@Navigator
 public class MainActivity extends AppCompatActivity {
+
+    private static final int REQ_CODE_DETAIL1 = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,5 +92,15 @@ public class MainActivity extends AppCompatActivity {
         startService(new MyIntentServiceNavigator("hoge", "fuga")
                 .action(MyIntentService.ACTION_FOO)
                 .build(this));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @OnActivityResult(requestCode = REQ_CODE_DETAIL1, resultCodes = {Activity.RESULT_OK})
+    void onActivityResult_Detail1_OK() {
+        Toast.makeText(this, "onActivityResult_Detail1_OK", Toast.LENGTH_SHORT).show();
     }
 }
