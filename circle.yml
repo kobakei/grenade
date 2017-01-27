@@ -7,9 +7,13 @@ machine:
 
 dependencies:
   pre:
-    - (while :; do echo 'y'; sleep 10; done) | android update sdk --no-ui --all --filter "tools,platform-tools,extra-android-support,extra-android-m2repository"
-    - (while :; do echo 'y'; sleep 10; done) | android update sdk --no-ui --all --filter "build-tools-23.0.3"
+    - mkdir $ANDROID_HOME/licenses
+    - echo "8933bad161af4178b1185d1a37fbf41ea5269c55" >> $ANDROID_HOME/licenses/android-sdk-license
+    # Disable daemon
+    - mkdir -p ~/.gradle && echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
 
+  override:
+    - ./gradlew dependencies
 test:
   override:
     - ./gradlew test
