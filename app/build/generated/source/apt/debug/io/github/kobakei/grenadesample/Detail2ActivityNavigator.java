@@ -90,9 +90,4 @@ public class Detail2ActivityNavigator {
       target.fuga = intent.getStringExtra("fuga");
     }
   }
-
-  /**
-   * Call this method in your Activity's onActivityResult */
-  public static void onActivityResult(Detail2Activity target, int requestCode, int resultCode, Intent intent) {
-  }
 }

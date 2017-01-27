@@ -189,9 +189,4 @@ public class Detail3ActivityNavigator {
     target.arg27 = intent.getIntegerArrayListExtra("arg27");
     target.arg28 = intent.getParcelableArrayListExtra("arg28");
   }
-
-  /**
-   * Call this method in your Activity's onActivityResult */
-  public static void onActivityResult(Detail3Activity target, int requestCode, int resultCode, Intent intent) {
-  }
 }

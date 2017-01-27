@@ -374,44 +374,46 @@ public class GrenadeProcessor extends AbstractProcessor {
 
         // (static) onActivityResult method
         log("Add onActivity method");
-        MethodSpec.Builder onActivityResultSpecBuilder = MethodSpec.methodBuilder("onActivityResult")
-                .addJavadoc("Call this method in your Activity's onActivityResult")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(targetClass, "target")
-                .addParameter(TypeName.INT, "requestCode")
-                .addParameter(TypeName.INT, "resultCode")
-                .addParameter(INTENT_CLASS, "intent");
-        for (Element e : onActivityResultElements) {
-            String methodName = e.getSimpleName().toString();
-            OnActivityResult oar = e.getAnnotation(OnActivityResult.class);
-
-            onActivityResultSpecBuilder
-                    .beginControlFlow("if (requestCode == $L && java.util.Arrays.asList($L).contains(resultCode))", oar.requestCode(), join(oar.resultCodes()));
-
-            ExecutableType executableType = (ExecutableType) e.asType();
-            String args = "";
-            for (int i = 0; i < executableType.getParameterTypes().size(); i++) {
-                TypeMirror paramTypeMirror = executableType.getParameterTypes().get(i);
-                String key = "param" + i;
-
-                TypeName paramType = TypeName.get(paramTypeMirror).box();
-
-                String statement = "$T $L = " + GET_EXTRA_STATEMENTS.get(paramType.toString());
+        if (onActivityResultElements.size() > 0) {
+            MethodSpec.Builder onActivityResultSpecBuilder = MethodSpec.methodBuilder("onActivityResult")
+                    .addJavadoc("Call this method in your Activity's onActivityResult")
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .addParameter(targetClass, "target")
+                    .addParameter(TypeName.INT, "requestCode")
+                    .addParameter(TypeName.INT, "resultCode")
+                    .addParameter(INTENT_CLASS, "intent");
+            for (Element e : onActivityResultElements) {
+                String methodName = e.getSimpleName().toString();
+                OnActivityResult oar = e.getAnnotation(OnActivityResult.class);
 
                 onActivityResultSpecBuilder
-                        .addStatement(statement, paramTypeMirror, key, key);
+                        .beginControlFlow("if (requestCode == $L && java.util.Arrays.asList($L).contains(resultCode))", oar.requestCode(), join(oar.resultCodes()));
 
-                args += key;
-                if (i < executableType.getParameterTypes().size() - 1) {
-                    args += ",";
+                ExecutableType executableType = (ExecutableType) e.asType();
+                String args = "";
+                for (int i = 0; i < executableType.getParameterTypes().size(); i++) {
+                    TypeMirror paramTypeMirror = executableType.getParameterTypes().get(i);
+                    String key = "param" + i;
+
+                    TypeName paramType = TypeName.get(paramTypeMirror).box();
+
+                    String statement = "$T $L = " + GET_EXTRA_STATEMENTS.get(paramType.toString());
+
+                    onActivityResultSpecBuilder
+                            .addStatement(statement, paramTypeMirror, key, key);
+
+                    args += key;
+                    if (i < executableType.getParameterTypes().size() - 1) {
+                        args += ",";
+                    }
                 }
-            }
 
-            onActivityResultSpecBuilder
-                    .addStatement("target.$L($L)", methodName, args)
-                    .endControlFlow();
+                onActivityResultSpecBuilder
+                        .addStatement("target.$L($L)", methodName, args)
+                        .endControlFlow();
+            }
+            navigatorBuilder.addMethod(onActivityResultSpecBuilder.build());
         }
-        navigatorBuilder.addMethod(onActivityResultSpecBuilder.build());
 
         // Write
         JavaFile.builder(packageName, navigatorBuilder.build())

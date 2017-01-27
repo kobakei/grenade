@@ -56,9 +56,4 @@ public class Detail4ActivityNavigator {
     target.user = Parcels.unwrap(intent.getParcelableExtra("user"));
     target.friends = Parcels.unwrap(intent.getParcelableExtra("friends"));
   }
-
-  /**
-   * Call this method in your Activity's onActivityResult */
-  public static void onActivityResult(Detail4Activity target, int requestCode, int resultCode, Intent intent) {
-  }
 }

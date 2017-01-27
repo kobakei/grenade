@@ -53,9 +53,4 @@ public class MyIntentServiceNavigator {
     target.param1 = intent.getStringExtra("param1");
     target.param2 = intent.getStringExtra("param2");
   }
-
-  /**
-   * Call this method in your Activity's onActivityResult */
-  public static void onActivityResult(MyIntentService target, int requestCode, int resultCode, Intent intent) {
-  }
 }
