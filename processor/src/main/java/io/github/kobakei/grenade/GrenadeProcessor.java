@@ -338,19 +338,24 @@ public class GrenadeProcessor extends AbstractProcessor {
         }
         navigatorBuilder.addMethod(injectSpecBuilder.build());
 
-        // (static) createResult method for each @OnActivityResult
-        log("Add createResult method");
+        // (static) resultFor method for each @OnActivityResult
+        log("Add resultFor method");
         for (Element e : onActivityResultElements) {
+
+            ExecutableType executableType = (ExecutableType) e.asType();
+            if (executableType.getParameterTypes().size() <= 0) {
+                continue;
+            }
+
             String methodName = e.getSimpleName().toString();
 
-            MethodSpec.Builder createResultSpecBuilder = MethodSpec.methodBuilder("createResult_" + methodName)
+            MethodSpec.Builder createResultSpecBuilder = MethodSpec.methodBuilder("resultFor" + beginCap(methodName))
                     .addJavadoc("Create result intent")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .returns(INTENT_CLASS);
             createResultSpecBuilder
                     .addStatement("$T intent = new $T()", INTENT_CLASS, INTENT_CLASS);
 
-            ExecutableType executableType = (ExecutableType) e.asType();
             for (int i = 0; i < executableType.getParameterTypes().size(); i++) {
                 TypeMirror paramTypeMirror = executableType.getParameterTypes().get(i);
                 String key = "param" + i;
@@ -559,6 +564,16 @@ public class GrenadeProcessor extends AbstractProcessor {
             }
         }
         return str;
+    }
+
+    private static String beginCap(String str) {
+        if (str == null) {
+            return null;
+        }
+        if (str.length() == 1) {
+            return str.toUpperCase();
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
     private void log(String msg) {

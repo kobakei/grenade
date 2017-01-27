@@ -20,6 +20,7 @@ import io.github.kobakei.grenadesample.entity.User;
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQ_CODE_DETAIL1 = 1001;
+    private static final int REQ_CODE_DETAIL2 = 1002;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +38,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void onButton21Clicked(View view) {
-        startActivity(new Detail2ActivityNavigator("foo", 12345).build(this));
+        Intent intent = new Detail2ActivityNavigator("foo", 12345).build(this);
+        startActivityForResult(intent, REQ_CODE_DETAIL2);
     }
 
     void onButton22Clicked(View view) {
@@ -102,12 +104,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @OnActivityResult(requestCode = REQ_CODE_DETAIL1, resultCodes = {Activity.RESULT_OK})
-    void onActivityResult_Detail1_OK(String foo, int bar) {
-        Toast.makeText(this, "onActivityResult_Detail1_OK", Toast.LENGTH_SHORT).show();
+    void onDetail1Ok(String foo, int bar) {
+        Toast.makeText(this, "Detail1 OK: " + foo + ", " + bar, Toast.LENGTH_SHORT).show();
     }
 
     @OnActivityResult(requestCode = REQ_CODE_DETAIL1, resultCodes = {Activity.RESULT_CANCELED})
-    void onActivityResult_Detail1_CANCELED() {
-        Toast.makeText(this, "onActivityResult_Detail1_CANCELED", Toast.LENGTH_SHORT).show();
+    void onDetail1Canceled() {
+        Toast.makeText(this, "Detail1 CANCELED", Toast.LENGTH_SHORT).show();
+    }
+
+    @OnActivityResult(requestCode = REQ_CODE_DETAIL2, resultCodes = {Activity.RESULT_OK, Activity.RESULT_CANCELED})
+    void onDetail2() {
+        Toast.makeText(this, "Detail2 OK/CANCELED", Toast.LENGTH_SHORT).show();
     }
 }
