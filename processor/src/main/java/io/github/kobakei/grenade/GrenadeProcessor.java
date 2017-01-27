@@ -98,36 +98,36 @@ public class GrenadeProcessor extends AbstractProcessor {
     }};
 
     private static final Map<String, String> GET_EXTRA_STATEMENTS = new HashMap<String, String>() {{
-        put("java.lang.Integer",        "target.$L = intent.getIntExtra($S, 0)");
-        put("java.lang.Long",           "target.$L = intent.getLongExtra($S, 0L)");
-        put("java.lang.Short",          "target.$L = intent.getShortExtra($S, (short)0)");
-        put("java.lang.Float",          "target.$L = intent.getFloatExtra($S, 0.0f)");
-        put("java.lang.Double",         "target.$L = intent.getDoubleExtra($S, 0.0)");
-        put("java.lang.Boolean",        "target.$L = intent.getBooleanExtra($S, false)");
-        put("java.lang.Byte",           "target.$L = intent.getByteExtra($S, (byte)0)");
-        put("java.lang.Character",      "target.$L = intent.getCharExtra($S, (char)0)");
-        put("java.lang.String",         "target.$L = intent.getStringExtra($S)");
-        put("java.lang.CharSequence",   "target.$L = intent.getCharSequenceExtra($S)");
-        put("java.io.Serializable",     "target.$L = intent.getSerializableExtra($S)");
-        put("android.os.Parcelable",    "target.$L = intent.getParcelableExtra($S)");
-        put("android.os.Bundle",        "target.$L = intent.getBundleExtra($S)");
+        put("java.lang.Integer",        "intent.getIntExtra($S, 0)");
+        put("java.lang.Long",           "intent.getLongExtra($S, 0L)");
+        put("java.lang.Short",          "intent.getShortExtra($S, (short)0)");
+        put("java.lang.Float",          "intent.getFloatExtra($S, 0.0f)");
+        put("java.lang.Double",         "intent.getDoubleExtra($S, 0.0)");
+        put("java.lang.Boolean",        "intent.getBooleanExtra($S, false)");
+        put("java.lang.Byte",           "intent.getByteExtra($S, (byte)0)");
+        put("java.lang.Character",      "intent.getCharExtra($S, (char)0)");
+        put("java.lang.String",         "intent.getStringExtra($S)");
+        put("java.lang.CharSequence",   "intent.getCharSequenceExtra($S)");
+        put("java.io.Serializable",     "intent.getSerializableExtra($S)");
+        put("android.os.Parcelable",    "intent.getParcelableExtra($S)");
+        put("android.os.Bundle",        "intent.getBundleExtra($S)");
 
-        put("int[]",                    "target.$L = intent.getIntArrayExtra($S)");
-        put("long[]",                   "target.$L = intent.getLongArrayExtra($S)");
-        put("short[]",                  "target.$L = intent.getShortArrayExtra($S)");
-        put("float[]",                  "target.$L = intent.getFloatArrayExtra($S)");
-        put("double[]",                 "target.$L = intent.getDoubleArrayExtra($S)");
-        put("boolean[]",                "target.$L = intent.getBooleanArrayExtra($S)");
-        put("char[]",                   "target.$L = intent.getCharArrayExtra($S)");
-        put("byte[]",                   "target.$L = intent.getByteArrayExtra($S)");
-        put("java.lang.String[]",       "target.$L = intent.getStringArrayExtra($S)");
-        put("java.lang.CharSequence[]", "target.$L = intent.getCharSequenceArrayExtra($S)");
-        put("android.os.Parcelable[]",  "target.$L = intent.getParcelableArrayExtra($S)");
+        put("int[]",                    "intent.getIntArrayExtra($S)");
+        put("long[]",                   "intent.getLongArrayExtra($S)");
+        put("short[]",                  "intent.getShortArrayExtra($S)");
+        put("float[]",                  "intent.getFloatArrayExtra($S)");
+        put("double[]",                 "intent.getDoubleArrayExtra($S)");
+        put("boolean[]",                "intent.getBooleanArrayExtra($S)");
+        put("char[]",                   "intent.getCharArrayExtra($S)");
+        put("byte[]",                   "intent.getByteArrayExtra($S)");
+        put("java.lang.String[]",       "intent.getStringArrayExtra($S)");
+        put("java.lang.CharSequence[]", "intent.getCharSequenceArrayExtra($S)");
+        put("android.os.Parcelable[]",  "intent.getParcelableArrayExtra($S)");
 
-        put("java.util.ArrayList<java.lang.Integer>",       "target.$L = intent.getIntegerArrayListExtra($S)");
-        put("java.util.ArrayList<java.lang.String>",        "target.$L = intent.getStringArrayListExtra($S)");
-        put("java.util.ArrayList<java.lang.CharSequence>",  "target.$L = intent.getCharSequenceArrayListExtra($S)");
-        put("java.util.ArrayList<android.os.Parcelable>",   "target.$L = intent.getParcelableArrayListExtra($S)");
+        put("java.util.ArrayList<java.lang.Integer>",       "intent.getIntegerArrayListExtra($S)");
+        put("java.util.ArrayList<java.lang.String>",        "intent.getStringArrayListExtra($S)");
+        put("java.util.ArrayList<java.lang.CharSequence>",  "intent.getCharSequenceArrayListExtra($S)");
+        put("java.util.ArrayList<android.os.Parcelable>",   "intent.getParcelableArrayListExtra($S)");
     }};
 
     // Parceler
@@ -326,8 +326,13 @@ public class GrenadeProcessor extends AbstractProcessor {
             for (int i = 0; i < executableType.getParameterTypes().size(); i++) {
                 TypeMirror paramTypeMirror = executableType.getParameterTypes().get(i);
                 String key = "param" + i;
+
+                TypeName paramType = TypeName.get(paramTypeMirror).box();
+
+                String statement = "$T $L = " + GET_EXTRA_STATEMENTS.get(paramType.toString());
+
                 onActivityResultSpecBuilder
-                        .addStatement("$T $L = intent.getStringExtra($S)", paramTypeMirror, key, key);
+                        .addStatement(statement, paramTypeMirror, key, key);
 
                 args += key;
                 if (i < executableType.getParameterTypes().size() - 1) {
@@ -440,7 +445,7 @@ public class GrenadeProcessor extends AbstractProcessor {
         if (shouldUseParceler(e)) {
             injectSpecBuilder.addStatement(PARCELER_GET_EXTRA_STATEMENT, fieldName, PARCELER_CLASS, keyName);
         } else {
-            String statement = GET_EXTRA_STATEMENTS.get(fieldType.toString());
+            String statement = "target.$L = " + GET_EXTRA_STATEMENTS.get(fieldType.toString());
             if (statement != null) {
                 injectSpecBuilder.addStatement(statement, fieldName, keyName);
             } else {

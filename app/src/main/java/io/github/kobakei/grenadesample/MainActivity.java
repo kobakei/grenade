@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @OnActivityResult(requestCode = REQ_CODE_DETAIL1, resultCodes = {Activity.RESULT_OK})
-    void onActivityResult_Detail1_OK(String foo, String bar) {
+    void onActivityResult_Detail1_OK(String foo, int bar) {
         Toast.makeText(this, "onActivityResult_Detail1_OK", Toast.LENGTH_SHORT).show();
     }
 
