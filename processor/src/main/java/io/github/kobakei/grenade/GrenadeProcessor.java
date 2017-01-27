@@ -97,6 +97,39 @@ public class GrenadeProcessor extends AbstractProcessor {
         put("java.util.ArrayList<android.os.Parcelable>",   "intent.putParcelableArrayListExtra($S, this.$L)");
     }};
 
+    private static final Map<String, String> PUT_EXTRA_STATEMENTS_2 = new HashMap<String, String>() {{
+        put("java.lang.Integer",        "intent.putExtra($S, $L)");
+        put("java.lang.Long",           "intent.putExtra($S, $L)");
+        put("java.lang.Short",          "intent.putExtra($S, $L)");
+        put("java.lang.Float",          "intent.putExtra($S, $L)");
+        put("java.lang.Double",         "intent.putExtra($S, $L)");
+        put("java.lang.Boolean",        "intent.putExtra($S, $L)");
+        put("java.lang.Byte",           "intent.putExtra($S, $L)");
+        put("java.lang.Character",      "intent.putExtra($S, $L)");
+        put("java.lang.String",         "intent.putExtra($S, $L)");
+        put("java.lang.CharSequence",   "intent.putExtra($S, $L)");
+        put("java.io.Serializable",     "intent.putExtra($S, $L)");
+        put("android.os.Parcelable",    "intent.putExtra($S, $L)");
+        put("android.os.Bundle",        "intent.putExtra($S, $L)");
+
+        put("int[]",         "intent.putExtra($S, $L)");
+        put("long[]",        "intent.putExtra($S, $L)");
+        put("short[]",       "intent.putExtra($S, $L)");
+        put("float[]",       "intent.putExtra($S, $L)");
+        put("double[]",      "intent.putExtra($S, $L)");
+        put("boolean[]",     "intent.putExtra($S, $L)");
+        put("char[]",        "intent.putExtra($S, $L)");
+        put("byte[]",        "intent.putExtra($S, $L)");
+        put("java.lang.String[]",        "intent.putExtra($S, $L)");
+        put("java.lang.CharSequence[]",        "intent.putExtra($S, $L)");
+        put("android.os.Parcelable[]",        "intent.putExtra($S, $L)");
+
+        put("java.util.ArrayList<java.lang.Integer>",       "intent.putIntegerArrayListExtra($S, $L)");
+        put("java.util.ArrayList<java.lang.String>",        "intent.putStringArrayListExtra($S, $L)");
+        put("java.util.ArrayList<java.lang.CharSequence>",  "intent.putCharSequenceArrayListExtra($S, $L)");
+        put("java.util.ArrayList<android.os.Parcelable>",   "intent.putParcelableArrayListExtra($S, $L)");
+    }};
+
     private static final Map<String, String> GET_EXTRA_STATEMENTS = new HashMap<String, String>() {{
         put("java.lang.Integer",        "intent.getIntExtra($S, 0)");
         put("java.lang.Long",           "intent.getLongExtra($S, 0L)");
@@ -304,6 +337,35 @@ public class GrenadeProcessor extends AbstractProcessor {
             addGetExtraStatement(injectSpecBuilder, e, true);
         }
         navigatorBuilder.addMethod(injectSpecBuilder.build());
+
+        // (static) createResult method for each @OnActivityResult
+        log("Add createResult method");
+        for (Element e : onActivityResultElements) {
+            String methodName = e.getSimpleName().toString();
+
+            MethodSpec.Builder createResultSpecBuilder = MethodSpec.methodBuilder("createResult_" + methodName)
+                    .addJavadoc("Create result intent")
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .returns(INTENT_CLASS);
+            createResultSpecBuilder
+                    .addStatement("$T intent = new $T()", INTENT_CLASS, INTENT_CLASS);
+
+            ExecutableType executableType = (ExecutableType) e.asType();
+            for (int i = 0; i < executableType.getParameterTypes().size(); i++) {
+                TypeMirror paramTypeMirror = executableType.getParameterTypes().get(i);
+                String key = "param" + i;
+
+                TypeName paramType = TypeName.get(paramTypeMirror);
+                TypeName boxedParamType = paramType.box();
+
+                createResultSpecBuilder.addParameter(paramType, key);
+                createResultSpecBuilder.addStatement(PUT_EXTRA_STATEMENTS_2.get(boxedParamType.toString()), key, key);
+            }
+
+            createResultSpecBuilder
+                    .addStatement("return intent");
+            navigatorBuilder.addMethod(createResultSpecBuilder.build());
+        }
 
         // (static) onActivityResult method
         log("Add onActivity method");

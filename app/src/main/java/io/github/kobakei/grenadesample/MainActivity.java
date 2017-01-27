@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void onButton21Clicked(View view) {
-        startActivity(new Detail2ActivityNavigator("foo", 123).build(this));
+        startActivity(new Detail2ActivityNavigator("foo", 12345).build(this));
     }
 
     void onButton22Clicked(View view) {

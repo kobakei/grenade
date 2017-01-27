@@ -2,6 +2,7 @@ package io.github.kobakei.grenadesample;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import butterknife.Bind;
@@ -47,5 +48,10 @@ public class Detail1Activity extends AppCompatActivity {
         barView.setText(String.valueOf(bar));
         hogeView.setText(hoge);
         fugaView.setText(fuga);
+    }
+
+    public void onButtonClick(View view) {
+        setResult(RESULT_OK, MainActivityNavigator.createResult_onActivityResult_Detail1_OK("hello", 123));
+        finish();
     }
 }
