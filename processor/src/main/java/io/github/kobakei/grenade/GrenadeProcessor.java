@@ -53,7 +53,7 @@ import io.github.kobakei.grenade.annotation.Optional;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class GrenadeProcessor extends AbstractProcessor {
 
-    private static final boolean LOGGABLE = true; // TODO
+    private static final boolean LOGGABLE = false;
 
     private Filer filer;
     private Messager messager;
