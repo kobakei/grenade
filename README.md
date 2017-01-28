@@ -150,6 +150,35 @@ startActivity(new DetailActivityNavigator(foo, bar2)
     .build(context));
 ```
 
+## Handling onActivityResult
+
+Setting Intent object to `onActivityResult` has the same problem as above.
+Grenade offers APIs to build Intent to pass `setResult` and to handle `onActivityResult` as type safe way.
+
+At first, in MasterActivity, add method to handle result of DetailActivity with `@OnActivityResult` annotation. Moreover, call `MasterActivityNavigator.onActivityResult` in `onActivityResult`.
+
+```java
+@OnActivityResult(requestCode = REQ_CODE_DETAIL1, resultCodes = {Activity.RESULT_OK})
+void onDetailOk(String foo, int bar) {
+    Toast.makeText(this, "Detail OK", Toast.LENGTH_SHORT).show();
+}
+
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    MainActivityNavigator.onActivityResult(this, requestCode, resultCode, data);
+}
+```
+
+In DetailActivity, setting result is as below:
+
+```java
+setResult(RESULT_OK, MainActivityNavigator.resultForOnDetailOk("Hello", 123));
+finish();
+```
+
+Once you build, putting extras and getting extras will be done in MainActivityNavigator.
+
 ## Built-in support of Parceler
 
 [Parceler](https://github.com/johncarl81/parceler) is a famous library to generate Parcelable reader/writer.
