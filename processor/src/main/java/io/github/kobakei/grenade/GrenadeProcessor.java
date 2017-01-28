@@ -33,6 +33,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -40,12 +41,14 @@ import javax.tools.Diagnostic;
 
 import io.github.kobakei.grenade.annotation.Extra;
 import io.github.kobakei.grenade.annotation.Navigator;
+import io.github.kobakei.grenade.annotation.OnActivityResult;
 import io.github.kobakei.grenade.annotation.Optional;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({
         "io.github.kobakei.grenade.annotation.Launcher",
         "io.github.kobakei.grenade.annotation.Extra",
+        "io.github.kobakei.grenare.annotation.OnActivityResult",
         "org.parceler.Parcel"
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -95,37 +98,70 @@ public class GrenadeProcessor extends AbstractProcessor {
         put("java.util.ArrayList<android.os.Parcelable>",   "intent.putParcelableArrayListExtra($S, this.$L)");
     }};
 
+    private static final Map<String, String> PUT_EXTRA_STATEMENTS_2 = new HashMap<String, String>() {{
+        put("java.lang.Integer",        "intent.putExtra($S, $L)");
+        put("java.lang.Long",           "intent.putExtra($S, $L)");
+        put("java.lang.Short",          "intent.putExtra($S, $L)");
+        put("java.lang.Float",          "intent.putExtra($S, $L)");
+        put("java.lang.Double",         "intent.putExtra($S, $L)");
+        put("java.lang.Boolean",        "intent.putExtra($S, $L)");
+        put("java.lang.Byte",           "intent.putExtra($S, $L)");
+        put("java.lang.Character",      "intent.putExtra($S, $L)");
+        put("java.lang.String",         "intent.putExtra($S, $L)");
+        put("java.lang.CharSequence",   "intent.putExtra($S, $L)");
+        put("java.io.Serializable",     "intent.putExtra($S, $L)");
+        put("android.os.Parcelable",    "intent.putExtra($S, $L)");
+        put("android.os.Bundle",        "intent.putExtra($S, $L)");
+
+        put("int[]",         "intent.putExtra($S, $L)");
+        put("long[]",        "intent.putExtra($S, $L)");
+        put("short[]",       "intent.putExtra($S, $L)");
+        put("float[]",       "intent.putExtra($S, $L)");
+        put("double[]",      "intent.putExtra($S, $L)");
+        put("boolean[]",     "intent.putExtra($S, $L)");
+        put("char[]",        "intent.putExtra($S, $L)");
+        put("byte[]",        "intent.putExtra($S, $L)");
+        put("java.lang.String[]",        "intent.putExtra($S, $L)");
+        put("java.lang.CharSequence[]",        "intent.putExtra($S, $L)");
+        put("android.os.Parcelable[]",        "intent.putExtra($S, $L)");
+
+        put("java.util.ArrayList<java.lang.Integer>",       "intent.putIntegerArrayListExtra($S, $L)");
+        put("java.util.ArrayList<java.lang.String>",        "intent.putStringArrayListExtra($S, $L)");
+        put("java.util.ArrayList<java.lang.CharSequence>",  "intent.putCharSequenceArrayListExtra($S, $L)");
+        put("java.util.ArrayList<android.os.Parcelable>",   "intent.putParcelableArrayListExtra($S, $L)");
+    }};
+
     private static final Map<String, String> GET_EXTRA_STATEMENTS = new HashMap<String, String>() {{
-        put("java.lang.Integer",        "target.$L = intent.getIntExtra($S, 0)");
-        put("java.lang.Long",           "target.$L = intent.getLongExtra($S, 0L)");
-        put("java.lang.Short",          "target.$L = intent.getShortExtra($S, (short)0)");
-        put("java.lang.Float",          "target.$L = intent.getFloatExtra($S, 0.0f)");
-        put("java.lang.Double",         "target.$L = intent.getDoubleExtra($S, 0.0)");
-        put("java.lang.Boolean",        "target.$L = intent.getBooleanExtra($S, false)");
-        put("java.lang.Byte",           "target.$L = intent.getByteExtra($S, (byte)0)");
-        put("java.lang.Character",      "target.$L = intent.getCharExtra($S, (char)0)");
-        put("java.lang.String",         "target.$L = intent.getStringExtra($S)");
-        put("java.lang.CharSequence",   "target.$L = intent.getCharSequenceExtra($S)");
-        put("java.io.Serializable",     "target.$L = intent.getSerializableExtra($S)");
-        put("android.os.Parcelable",    "target.$L = intent.getParcelableExtra($S)");
-        put("android.os.Bundle",        "target.$L = intent.getBundleExtra($S)");
+        put("java.lang.Integer",        "intent.getIntExtra($S, 0)");
+        put("java.lang.Long",           "intent.getLongExtra($S, 0L)");
+        put("java.lang.Short",          "intent.getShortExtra($S, (short)0)");
+        put("java.lang.Float",          "intent.getFloatExtra($S, 0.0f)");
+        put("java.lang.Double",         "intent.getDoubleExtra($S, 0.0)");
+        put("java.lang.Boolean",        "intent.getBooleanExtra($S, false)");
+        put("java.lang.Byte",           "intent.getByteExtra($S, (byte)0)");
+        put("java.lang.Character",      "intent.getCharExtra($S, (char)0)");
+        put("java.lang.String",         "intent.getStringExtra($S)");
+        put("java.lang.CharSequence",   "intent.getCharSequenceExtra($S)");
+        put("java.io.Serializable",     "intent.getSerializableExtra($S)");
+        put("android.os.Parcelable",    "intent.getParcelableExtra($S)");
+        put("android.os.Bundle",        "intent.getBundleExtra($S)");
 
-        put("int[]",                    "target.$L = intent.getIntArrayExtra($S)");
-        put("long[]",                   "target.$L = intent.getLongArrayExtra($S)");
-        put("short[]",                  "target.$L = intent.getShortArrayExtra($S)");
-        put("float[]",                  "target.$L = intent.getFloatArrayExtra($S)");
-        put("double[]",                 "target.$L = intent.getDoubleArrayExtra($S)");
-        put("boolean[]",                "target.$L = intent.getBooleanArrayExtra($S)");
-        put("char[]",                   "target.$L = intent.getCharArrayExtra($S)");
-        put("byte[]",                   "target.$L = intent.getByteArrayExtra($S)");
-        put("java.lang.String[]",       "target.$L = intent.getStringArrayExtra($S)");
-        put("java.lang.CharSequence[]", "target.$L = intent.getCharSequenceArrayExtra($S)");
-        put("android.os.Parcelable[]",  "target.$L = intent.getParcelableArrayExtra($S)");
+        put("int[]",                    "intent.getIntArrayExtra($S)");
+        put("long[]",                   "intent.getLongArrayExtra($S)");
+        put("short[]",                  "intent.getShortArrayExtra($S)");
+        put("float[]",                  "intent.getFloatArrayExtra($S)");
+        put("double[]",                 "intent.getDoubleArrayExtra($S)");
+        put("boolean[]",                "intent.getBooleanArrayExtra($S)");
+        put("char[]",                   "intent.getCharArrayExtra($S)");
+        put("byte[]",                   "intent.getByteArrayExtra($S)");
+        put("java.lang.String[]",       "intent.getStringArrayExtra($S)");
+        put("java.lang.CharSequence[]", "intent.getCharSequenceArrayExtra($S)");
+        put("android.os.Parcelable[]",  "intent.getParcelableArrayExtra($S)");
 
-        put("java.util.ArrayList<java.lang.Integer>",       "target.$L = intent.getIntegerArrayListExtra($S)");
-        put("java.util.ArrayList<java.lang.String>",        "target.$L = intent.getStringArrayListExtra($S)");
-        put("java.util.ArrayList<java.lang.CharSequence>",  "target.$L = intent.getCharSequenceArrayListExtra($S)");
-        put("java.util.ArrayList<android.os.Parcelable>",   "target.$L = intent.getParcelableArrayListExtra($S)");
+        put("java.util.ArrayList<java.lang.Integer>",       "intent.getIntegerArrayListExtra($S)");
+        put("java.util.ArrayList<java.lang.String>",        "intent.getStringArrayListExtra($S)");
+        put("java.util.ArrayList<java.lang.CharSequence>",  "intent.getCharSequenceArrayListExtra($S)");
+        put("java.util.ArrayList<android.os.Parcelable>",   "intent.getParcelableArrayListExtra($S)");
     }};
 
     // Parceler
@@ -145,11 +181,11 @@ public class GrenadeProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
-        Class<Navigator> launcherClass = Navigator.class;
-        for (Element element : roundEnv.getElementsAnnotatedWith(launcherClass)) {
-            log("Found launcher");
+        Class<Navigator> navigatorClass = Navigator.class;
+        for (Element element : roundEnv.getElementsAnnotatedWith(navigatorClass)) {
+            log("Found navigator");
             try {
-                generateBuilder(element);
+                generateNavigator(element);
             } catch (IOException e) {
                 logError("IO error");
             }
@@ -158,11 +194,17 @@ public class GrenadeProcessor extends AbstractProcessor {
         return true;
     }
 
-    private void generateBuilder(Element element) throws IOException {
+    /**
+     * Genaret FooActivityNavigator class
+     * @param element Element annotated with @Navigator.
+     * @throws IOException
+     */
+    private void generateNavigator(Element element) throws IOException {
         String className = element.getSimpleName().toString();
         String packageName = elements.getPackageOf(element).getQualifiedName().toString();
         String navigatorName = className + "Navigator";
         ClassName targetClass = ClassName.get(packageName, className);
+        ClassName navigatorClass = ClassName.get(packageName, navigatorName);
 
         // Class
         TypeSpec.Builder navigatorBuilder = TypeSpec.classBuilder(navigatorName)
@@ -173,29 +215,37 @@ public class GrenadeProcessor extends AbstractProcessor {
         Navigator navigator = element.getAnnotation(Navigator.class);
         String[] rules = navigator.value();
 
-        // Extras
-        List<Element> requiredElements = new ArrayList<>();
-        List<Element> optionalElements = new ArrayList<>();
+        // Find @Extra and @OnActivityResult
+        List<Element> requiredExtraElements = new ArrayList<>();
+        List<Element> optionalExtraElements = new ArrayList<>();
+        List<Element> onActivityResultElements = new ArrayList<>();
         for (Element elem : element.getEnclosedElements()) {
+            // Extra
             Extra extra = elem.getAnnotation(Extra.class);
             if (extra != null) {
                 Optional optional = elem.getAnnotation(Optional.class);
                 if (optional != null) {
                     log("Optional");
-                    optionalElements.add(elem);
+                    optionalExtraElements.add(elem);
                 } else {
                     log("Required");
-                    requiredElements.add(elem);
+                    requiredExtraElements.add(elem);
                 }
+            }
+
+            // OAR
+            OnActivityResult onActivityResult = elem.getAnnotation(OnActivityResult.class);
+            if (onActivityResult != null) {
+                onActivityResultElements.add(elem);
             }
         }
 
         // fields
         log("Adding fields");
-        for (Element e : requiredElements) {
+        for (Element e : requiredExtraElements) {
             addField(navigatorBuilder, e);
         }
-        for (Element e : optionalElements) {
+        for (Element e : optionalExtraElements) {
             addField(navigatorBuilder, e);
         }
 
@@ -212,88 +262,44 @@ public class GrenadeProcessor extends AbstractProcessor {
         // Constructor
         log("Adding constructors");
         if (rules.length == 0) {
-            addConstructor(navigatorBuilder, requiredElements);
+            addConstructor(navigatorBuilder, requiredExtraElements);
         } else {
             for (String rule : rules) {
-                addConstructor(navigatorBuilder, requiredElements, rule);
+                addConstructor(navigatorBuilder, requiredExtraElements, rule);
             }
         }
 
         // set option value method
         log("Add optional methods");
-        for (Element e : optionalElements) {
-            String fieldName = e.getSimpleName().toString();
-            TypeName fieldType = TypeName.get(e.asType());
-            MethodSpec setOptionalSpec = MethodSpec.methodBuilder(fieldName)
-                    .addJavadoc("Set optional field")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(fieldType, fieldName)
-                    .returns(ClassName.get(packageName, navigatorName))
-                    .addStatement("this.$L = $L", fieldName, fieldName)
-                    .addStatement("return this")
-                    .build();
-            navigatorBuilder.addMethod(setOptionalSpec);
+        for (Element optionalExtraElement : optionalExtraElements) {
+            addOptionalExtraMethod(navigatorBuilder, navigatorClass, optionalExtraElement);
         }
 
         // add flags method
         log("Add flags method");
-        MethodSpec flagsMethod = MethodSpec.methodBuilder("flags")
-                .addJavadoc("Add intent flags")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(TypeName.INT, "flags")
-                .returns(ClassName.get(packageName, navigatorName))
-                .addStatement("this.flags = flags")
-                .addStatement("return this")
-                .build();
-        navigatorBuilder.addMethod(flagsMethod);
+        addFlagsMethod(navigatorBuilder, navigatorClass);
 
         // set action method
         log("Add action method");
-        MethodSpec actionMethod = MethodSpec.methodBuilder("action")
-                .addJavadoc("Set action")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(TypeName.get(String.class), "action")
-                .returns(ClassName.get(packageName, navigatorName))
-                .addStatement("this.action = action")
-                .addStatement("return this")
-                .build();
-        navigatorBuilder.addMethod(actionMethod);
+        addActionMethod(navigatorBuilder, navigatorClass);
 
         // build method
         log("Add build method");
-        MethodSpec.Builder buildSpecBuilder = MethodSpec.methodBuilder("build")
-                .addJavadoc("Build intent")
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(CONTEXT_CLASS, "context")
-                .returns(INTENT_CLASS)
-                .addStatement("$T intent = new $T(context, $T.class)", INTENT_CLASS, INTENT_CLASS, targetClass);
-        for (Element e : requiredElements) {
-            addPutExtraStatement(buildSpecBuilder, e);
-        }
-        for (Element e : optionalElements) {
-            addPutExtraStatement(buildSpecBuilder, e);
-        }
-        buildSpecBuilder
-                .addStatement("intent.addFlags(this.flags)")
-                .addStatement("intent.setAction(this.action)")
-                .addStatement("return intent")
-                .build();
-        navigatorBuilder.addMethod(buildSpecBuilder.build());
+        addBuildMethod(navigatorBuilder, targetClass, requiredExtraElements, optionalExtraElements);
 
         // (static) inject method
         log("Add inject method");
-        MethodSpec.Builder injectSpecBuilder = MethodSpec.methodBuilder("inject")
-                .addJavadoc("Inject fields of activity from intent")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(targetClass, "target")
-                .addParameter(INTENT_CLASS, "intent");
-        for (Element e : requiredElements) {
-            addGetExtraStatement(injectSpecBuilder, e, false);
+        addInjectMethod(navigatorBuilder, targetClass, requiredExtraElements, optionalExtraElements);
+
+        // (static) resultFor method for each @OnActivityResult
+        log("Add resultFor method");
+        addResultForMethods(navigatorBuilder, onActivityResultElements);
+
+        // (static) onActivityResult method
+        log("Add onActivity method");
+        if (onActivityResultElements.size() > 0) {
+            addOnActivityResultMethod(navigatorBuilder, targetClass, onActivityResultElements);
         }
-        for (Element e : optionalElements) {
-            addGetExtraStatement(injectSpecBuilder, e, true);
-        }
-        navigatorBuilder.addMethod(injectSpecBuilder.build());
 
         // Write
         JavaFile.builder(packageName, navigatorBuilder.build())
@@ -304,11 +310,11 @@ public class GrenadeProcessor extends AbstractProcessor {
     /**
      * Add field
      * @param navigatorBuilder
-     * @param e
+     * @param extraElement
      */
-    private void addField(TypeSpec.Builder navigatorBuilder, Element e) {
-        String fieldName = e.getSimpleName().toString();
-        TypeName fieldType = TypeName.get(e.asType());
+    private void addField(TypeSpec.Builder navigatorBuilder, Element extraElement) {
+        String fieldName = extraElement.getSimpleName().toString();
+        TypeName fieldType = TypeName.get(extraElement.asType());
         FieldSpec fieldSpec = FieldSpec.builder(fieldType, fieldName, Modifier.PRIVATE)
                 .build();
         navigatorBuilder.addField(fieldSpec);
@@ -335,15 +341,15 @@ public class GrenadeProcessor extends AbstractProcessor {
     /**
      * Add constructor with params and rule
      * @param navigatorBuilder
-     * @param requiredElements
+     * @param requiredExtraElements
      * @param rule
      */
-    private void addConstructor(TypeSpec.Builder navigatorBuilder, List<Element> requiredElements, String rule) {
+    private void addConstructor(TypeSpec.Builder navigatorBuilder, List<Element> requiredExtraElements, String rule) {
         List<String> tokens = Arrays.asList(rule.split(","));
         MethodSpec.Builder constructorSpecBuilder = MethodSpec.constructorBuilder()
                 .addJavadoc("Constructor with required params")
                 .addModifiers(Modifier.PUBLIC);
-        for (Element e : requiredElements) {
+        for (Element e : requiredExtraElements) {
             String fieldName = e.getSimpleName().toString();
             TypeName fieldType = TypeName.get(e.asType());
             if (tokens.contains(fieldName)) {
@@ -352,6 +358,208 @@ public class GrenadeProcessor extends AbstractProcessor {
             }
         }
         navigatorBuilder.addMethod(constructorSpecBuilder.build());
+    }
+
+    /**
+     * Add optional value method.
+     * @param navigatorBuilder
+     * @param navigatorClass
+     * @param optionalExtraElement
+     */
+    private void addOptionalExtraMethod(TypeSpec.Builder navigatorBuilder, ClassName navigatorClass,
+                                        Element optionalExtraElement) {
+        String fieldName = optionalExtraElement.getSimpleName().toString();
+        TypeName fieldType = TypeName.get(optionalExtraElement.asType());
+        MethodSpec setOptionalSpec = MethodSpec.methodBuilder(fieldName)
+                .addJavadoc("Set optional field")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(fieldType, fieldName)
+                .returns(navigatorClass)
+                .addStatement("this.$L = $L", fieldName, fieldName)
+                .addStatement("return this")
+                .build();
+        navigatorBuilder.addMethod(setOptionalSpec);
+    }
+
+    /**
+     * Add flags method
+     * @param navigatorBuilder
+     * @param navigatorClass
+     */
+    private void addFlagsMethod(TypeSpec.Builder navigatorBuilder, ClassName navigatorClass) {
+        MethodSpec flagsMethod = MethodSpec.methodBuilder("flags")
+                .addJavadoc("Add intent flags")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(TypeName.INT, "flags")
+                .returns(navigatorClass)
+                .addStatement("this.flags = flags")
+                .addStatement("return this")
+                .build();
+        navigatorBuilder.addMethod(flagsMethod);
+    }
+
+    /**
+     * Add action method
+     * @param navigatorBuilder
+     * @param navigatorClass
+     */
+    private void addActionMethod(TypeSpec.Builder navigatorBuilder, ClassName navigatorClass) {
+        MethodSpec actionMethod = MethodSpec.methodBuilder("action")
+                .addJavadoc("Set action")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(TypeName.get(String.class), "action")
+                .returns(navigatorClass)
+                .addStatement("this.action = action")
+                .addStatement("return this")
+                .build();
+        navigatorBuilder.addMethod(actionMethod);
+    }
+
+    /**
+     * Add static inject method
+     * @param navigatorBuilder
+     * @param targetClass
+     * @param requiredExtraElements
+     * @param optionalExtraElements
+     */
+    private void addInjectMethod(TypeSpec.Builder navigatorBuilder,
+                                 ClassName targetClass,
+                                 List<Element> requiredExtraElements,
+                                 List<Element> optionalExtraElements) {
+        MethodSpec.Builder injectSpecBuilder = MethodSpec.methodBuilder("inject")
+                .addJavadoc("Inject fields of activity from intent")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(targetClass, "target")
+                .addParameter(INTENT_CLASS, "intent");
+        for (Element e : requiredExtraElements) {
+            addGetExtraStatement(injectSpecBuilder, e, false);
+        }
+        for (Element e : optionalExtraElements) {
+            addGetExtraStatement(injectSpecBuilder, e, true);
+        }
+        navigatorBuilder.addMethod(injectSpecBuilder.build());
+    }
+
+    /**
+     * Add build method
+     * @param navigatorBuilder
+     * @param targetClass
+     * @param requiredExtraElements
+     * @param optionalExtraElements
+     */
+    private void addBuildMethod(TypeSpec.Builder navigatorBuilder,
+                                ClassName targetClass,
+                                List<Element> requiredExtraElements,
+                                List<Element> optionalExtraElements) {
+        MethodSpec.Builder buildSpecBuilder = MethodSpec.methodBuilder("build")
+                .addJavadoc("Build intent")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(CONTEXT_CLASS, "context")
+                .returns(INTENT_CLASS)
+                .addStatement("$T intent = new $T(context, $T.class)", INTENT_CLASS, INTENT_CLASS, targetClass);
+        for (Element e : requiredExtraElements) {
+            addPutExtraStatement(buildSpecBuilder, e);
+        }
+        for (Element e : optionalExtraElements) {
+            addPutExtraStatement(buildSpecBuilder, e);
+        }
+        buildSpecBuilder
+                .addStatement("intent.addFlags(this.flags)")
+                .addStatement("intent.setAction(this.action)")
+                .addStatement("return intent")
+                .build();
+        navigatorBuilder.addMethod(buildSpecBuilder.build());
+    }
+
+    /**
+     * Add resultForXXX method
+     * @param navigatorBuilder
+     * @param onActivityResultElements
+     */
+    private void addResultForMethods(TypeSpec.Builder navigatorBuilder,
+                                     List<Element> onActivityResultElements) {
+        for (Element oarElement : onActivityResultElements) {
+
+            ExecutableType executableType = (ExecutableType) oarElement.asType();
+            if (executableType.getParameterTypes().size() <= 0) {
+                continue;
+            }
+
+            String methodName = oarElement.getSimpleName().toString();
+
+            MethodSpec.Builder resultForSpecBuilder = MethodSpec.methodBuilder("resultFor" + StringUtils.beginCap(methodName))
+                    .addJavadoc("Create result intent")
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .returns(INTENT_CLASS);
+            resultForSpecBuilder
+                    .addStatement("$T intent = new $T()", INTENT_CLASS, INTENT_CLASS);
+
+            for (int i = 0; i < executableType.getParameterTypes().size(); i++) {
+                TypeMirror paramTypeMirror = executableType.getParameterTypes().get(i);
+                String key = "param" + i;
+
+                TypeName paramType = TypeName.get(paramTypeMirror);
+                TypeName boxedParamType = paramType.box();
+
+                resultForSpecBuilder.addParameter(paramType, key);
+                resultForSpecBuilder.addStatement(PUT_EXTRA_STATEMENTS_2.get(boxedParamType.toString()), key, key);
+            }
+
+            resultForSpecBuilder
+                    .addStatement("return intent");
+            navigatorBuilder.addMethod(resultForSpecBuilder.build());
+        }
+    }
+
+    /**
+     * Add onActivityResult method
+     * @param navigatorBuilder
+     * @param targetClass
+     * @param onActivityResultElements
+     */
+    private void addOnActivityResultMethod(TypeSpec.Builder navigatorBuilder,
+                                           ClassName targetClass,
+                                           List<Element> onActivityResultElements) {
+        MethodSpec.Builder onActivityResultSpecBuilder = MethodSpec.methodBuilder("onActivityResult")
+                .addJavadoc("Call this method in your Activity's onActivityResult")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(targetClass, "target")
+                .addParameter(TypeName.INT, "requestCode")
+                .addParameter(TypeName.INT, "resultCode")
+                .addParameter(INTENT_CLASS, "intent");
+        for (Element e : onActivityResultElements) {
+            String methodName = e.getSimpleName().toString();
+            OnActivityResult oar = e.getAnnotation(OnActivityResult.class);
+
+            onActivityResultSpecBuilder.beginControlFlow(
+                    "if (requestCode == $L && java.util.Arrays.asList($L).contains(resultCode))",
+                    oar.requestCode(),
+                    StringUtils.join(oar.resultCodes()));
+
+            ExecutableType executableType = (ExecutableType) e.asType();
+            String args = "";
+            for (int i = 0; i < executableType.getParameterTypes().size(); i++) {
+                TypeMirror paramTypeMirror = executableType.getParameterTypes().get(i);
+                String key = "param" + i;
+
+                TypeName paramType = TypeName.get(paramTypeMirror).box();
+
+                String statement = "$T $L = " + GET_EXTRA_STATEMENTS.get(paramType.toString());
+
+                onActivityResultSpecBuilder
+                        .addStatement(statement, paramTypeMirror, key, key);
+
+                args += key;
+                if (i < executableType.getParameterTypes().size() - 1) {
+                    args += ",";
+                }
+            }
+
+            onActivityResultSpecBuilder
+                    .addStatement("target.$L($L)", methodName, args)
+                    .endControlFlow();
+        }
+        navigatorBuilder.addMethod(onActivityResultSpecBuilder.build());
     }
 
     /**
@@ -396,6 +604,7 @@ public class GrenadeProcessor extends AbstractProcessor {
         } else {
             String statement = GET_EXTRA_STATEMENTS.get(fieldType.toString());
             if (statement != null) {
+                statement = "target.$L = " + statement;
                 injectSpecBuilder.addStatement(statement, fieldName, keyName);
             } else {
                 logError("[getExtra] Unsupported type: " + fieldType.toString());
