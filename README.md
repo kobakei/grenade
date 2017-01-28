@@ -155,6 +155,8 @@ startActivity(new DetailActivityNavigator(foo, bar2)
 Setting Intent object to `onActivityResult` has the same problem as above.
 Grenade offers APIs to build Intent to pass `setResult` and to handle `onActivityResult` as type safe way.
 
+As an example, let's think about handling DetailActivity's result in MasterActivity.
+
 At first, in MasterActivity, add method to handle result of DetailActivity with `@OnActivityResult` annotation. Moreover, call `MasterActivityNavigator.onActivityResult` in `onActivityResult`.
 
 ```java
