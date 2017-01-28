@@ -51,7 +51,8 @@ public class Detail1Activity extends AppCompatActivity {
     }
 
     public void onButtonClick(View view) {
-        setResult(RESULT_OK, MainActivityNavigator.resultForOnDetail1Ok("hello", 123));
+        short s = 1;
+        setResult(RESULT_OK, MainActivityNavigator.resultForOnDetail1Ok("hello", 123, 1.23f, 1.23, s, 1));
         finish();
     }
 }

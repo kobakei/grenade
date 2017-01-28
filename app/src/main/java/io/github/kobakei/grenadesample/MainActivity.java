@@ -104,8 +104,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @OnActivityResult(requestCode = REQ_CODE_DETAIL1, resultCodes = {Activity.RESULT_OK})
-    void onDetail1Ok(String foo, int bar) {
-        Toast.makeText(this, "Detail1 OK: " + foo + ", " + bar, Toast.LENGTH_SHORT).show();
+    void onDetail1Ok(String p1, int p2, float p3, double p4, short p5, long p6) {
+        String text = "";
+        text += p1 + ", ";
+        text += p2 + ", ";
+        text += p3 + ", ";
+        text += p4 + ", ";
+        text += p5 + ", ";
+        text += p6 + ", ";
+        Toast.makeText(this, "Detail1 OK: " + text, Toast.LENGTH_SHORT).show();
     }
 
     @OnActivityResult(requestCode = REQ_CODE_DETAIL1, resultCodes = {Activity.RESULT_CANCELED})
