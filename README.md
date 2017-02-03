@@ -25,8 +25,6 @@ allprojects {
 App build.gradle
 
 ```groovy
-apply plugin: 'com.neenbedankt.android-apt'
-
 dependencies {
     ...
     annotationProcessor 'com.github.kobakei.grenade:processor:LATEST_VERSION'
