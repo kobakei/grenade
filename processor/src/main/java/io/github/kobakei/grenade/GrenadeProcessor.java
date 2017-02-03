@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,13 +46,6 @@ import io.github.kobakei.grenade.annotation.OnActivityResult;
 import io.github.kobakei.grenade.annotation.Optional;
 
 @AutoService(Processor.class)
-@SupportedAnnotationTypes({
-        "io.github.kobakei.grenade.annotation.Launcher",
-        "io.github.kobakei.grenade.annotation.Extra",
-        "io.github.kobakei.grenare.annotation.OnActivityResult",
-        "org.parceler.Parcel"
-})
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class GrenadeProcessor extends AbstractProcessor {
 
     private static final boolean LOGGABLE = false;
@@ -176,6 +170,18 @@ public class GrenadeProcessor extends AbstractProcessor {
         this.filer = processingEnv.getFiler();
         this.elements = processingEnv.getElementUtils();
         this.types = processingEnv.getTypeUtils();
+    }
+
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        Set<String> set = new HashSet<>();
+        set.add(Navigator.class.getCanonicalName());
+        return set;
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latestSupported();
     }
 
     @Override
