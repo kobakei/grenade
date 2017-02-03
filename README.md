@@ -14,13 +14,6 @@ This library is strongly inspired by [emilsjolander/IntentBuilder](https://githu
 Project build.gradle
 
 ```groovy
-buildscript {
-    dependencies {
-        ...
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-    }
-}
-
 allprojects {
     repositories {
         ...
@@ -36,12 +29,14 @@ apply plugin: 'com.neenbedankt.android-apt'
 
 dependencies {
     ...
-    apt 'com.github.kobakei.grenade:processor:LATEST_VERSION'
+    annotationProcessor 'com.github.kobakei.grenade:processor:LATEST_VERSION'
     compile 'com.github.kobakei.grenade:library:LATEST_VERSION'
 }
 ```
 
 `LATEST_VERSION` is  [![JitPack](https://jitpack.io/v/kobakei/grenade.svg)](https://jitpack.io/#kobakei/grenade)
+
+NOTE: if you use Android Gradle Plugin before 2.2.0, you must use android-apt plugin instead of [annotationProcessor](https://bitbucket.org/hvisser/android-apt) configuration.
 
 ## Basic usage
 
