@@ -1,4 +1,6 @@
-# Grenade
+# Grenade (Deprecated)
+
+Now I don't have time to maintain this library. By using Kotlin (especially delegated property), we can put and get intent extra as type safe way without this libary.
 
 [![Build Status](https://circleci.com/gh/kobakei/grenade.svg?style=shield)](https://circleci.com/gh/kobakei/grenade/tree/master)
 [![JitPack](https://jitpack.io/v/kobakei/grenade.svg)](https://jitpack.io/#kobakei/grenade)
